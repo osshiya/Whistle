@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
     switch (_selectedIndex) {
       case 0:
         appBar = AppBar(
-          title: const Text(HomeScreen.title),
+          // title: const Text(HomeScreen.title),
           actions: <Widget>[
             IconButton(
               icon: BLEPage.androidIcon,
@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
           // ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: const Color.fromARGB(255, 68, 69, 75),
+        selectedItemColor: const Color(0xFF2F7BEE),
         onTap: _onItemTapped,
       ),
     );
