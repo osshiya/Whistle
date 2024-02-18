@@ -4,14 +4,25 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_app/firebase_options.dart';
 
+import 'package:permission_handler/permission_handler.dart';
+
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  [
+    Permission.location,
+    Permission.storage,
+    Permission.bluetooth,
+    Permission.bluetoothConnect,
+    Permission.bluetoothScan
+  ].request().then((status) {
+    runApp(const MyApp());
+  });
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

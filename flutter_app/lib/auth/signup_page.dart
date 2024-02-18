@@ -8,6 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_app/models/authDB.dart';
+
 import 'package:flutter_app/auth/login_page.dart';
 
 // import 'package:familyjob/auth/email_verification.dart';
@@ -24,6 +26,7 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  late FirebaseHelper dbHelper;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _emailController = TextEditingController();
@@ -33,26 +36,14 @@ class _SignupPageState extends State<SignupPage> {
   bool _revealPassword = false;
   bool _revealConfirmPassword = false;
 
-// Assuming UserCredential is obtained after registration
-  Future<void> storeUserData(UserCredential user) async {
-    try {
-      final newUid = user.user!.uid;
-
-      await _firestore
-          .collection('users')
-          .doc(newUid)
-          .set({'uid': newUid, 'email': _emailController.text.trim()});
-    } catch (e) {
-      print('Error storing user data: $e');
-    }
-  }
-
   bool passwordsMatch() {
     return _passwordController.text == _confirmPasswordController.text;
   }
 
   Future<void> _signup(BuildContext context) async {
     try {
+      dbHelper = FirebaseHelper();
+
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
@@ -63,7 +54,7 @@ class _SignupPageState extends State<SignupPage> {
       // await sendEmailVerification();
 
       // Store additional user data including the username
-      await storeUserData(userCredential);
+      await dbHelper.storeUserData(userCredential);
 
       // Navigate to Login Page
       _navigateToLoginPage(context);

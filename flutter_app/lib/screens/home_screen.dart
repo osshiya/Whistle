@@ -1,5 +1,9 @@
 // home_screen.dart
 import 'package:flutter/material.dart';
+import 'dart:math';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+
 // import 'package:flutter/foundation.dart';
 // import 'package:familyjob/widgets.dart';
 
@@ -8,7 +12,8 @@ import 'package:flutter/material.dart';
 
 // import 'package:flutter_app/features/tasks_history.dart';
 
-import 'package:flutter_app/models/db.dart';
+import 'package:flutter_app/models/authDB.dart' as AuthDB;
+import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/pages/settings.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,173 +27,195 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late FirebaseHelper dbHelper;
+  late AuthDB.FirebaseHelper dbAuthHelper;
+  late BleDB.FirebaseHelper dbBleHelper;
+  String? country;
 
   @override
   void initState() {
     super.initState();
-    dbHelper = FirebaseHelper();
+    dbAuthHelper = AuthDB.FirebaseHelper();
+    dbBleHelper = BleDB.FirebaseHelper();
+    _getCurrentCountry();
+  }
+
+  Future<void> _getCurrentCountry() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      setState(() {
+        country = placemarks.first.country;
+      });
+    } catch (e) {
+      print('Error getting current country: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FutureBuilder<String>(
-          future: dbHelper.getStoredUid(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else if (!snapshot.hasData || snapshot.data == null) {
-              return const Text('UID not found');
-            } else {
-              String uid = snapshot.data!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+      // Adjust the value as needed
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FutureBuilder<String>(
+            future: dbAuthHelper.getStoredUid(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (!snapshot.hasData || snapshot.data == null) {
+                return const Text('UID not found');
+              } else {
+                String uid = snapshot.data!;
 
-              // Use the obtained UID to fetch user data
-              return FutureBuilder<Map<String, dynamic>?>(
-                future: dbHelper.getUserData(uid),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData || snapshot.data == null) {
-                    return const Text('User not found');
-                  } else {
-                    String username = snapshot.data!['username'].toString();
-                    // String userbalance =
-                    // snapshot.data!['userbalance'].toStringAsFixed(2);
-                    // if (snapshot.data!['username'] == null ||
-                    //     username == '') {
-                    //   return const Text('Username not found');
-                    // } else {
-                    // Now, you have the username, use it in your UI
-                    return TitleSection(
-                      name: username,
-                      balance: '0',
-                    );
-                    // }
-                  }
-                },
-              );
-            }
-          },
-        ),
-        const ButtonSection(),
-        const ActivitySection(name: "Recent Transactions"),
-        const Lists(),
-      ],
+                // Use the obtained UID to fetch user data
+                return FutureBuilder<Map<String, dynamic>?>(
+                  future: dbAuthHelper.getUserData(uid),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData || snapshot.data == null) {
+                      return const Text('User not found');
+                    } else {
+                      String name = snapshot.data!['username'].toString();
+
+                      return TitleSection(
+                        name: name,
+                        country: country ?? 'Loading...',
+                      );
+                      // }
+                    }
+                  },
+                );
+              }
+            },
+          ),
+          // const ButtonSection(),
+          const ActivitySection(name: "Recent Activity"),
+          Lists(dbBleHelper: dbBleHelper),
+        ],
+      ),
     );
   }
-
-  // return Center(
-  // child: Column(
-  //   mainAxisAlignment: MainAxisAlignment.center,
-  //   children: [
-  //     const Row(
-
-  //     ),
-  //     const Text(
-  //       'Welcome to the Home Page!',
-  //       style: TextStyle(fontSize: 20.0),
-  //     ),
-  //     const SizedBox(height: 16.0),
-  //     ],
-  //   ),
-  // );
-  // }
 }
 
 class TitleSection extends StatelessWidget {
   const TitleSection({
     super.key,
     required this.name,
-    required this.balance,
+    required this.country,
   });
 
   final String name;
-  final String balance;
+  final String country;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Row(
         children: [
-          Expanded(
-            /*1*/
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /*2*/
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    "Welcome back, $name",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const Text(
-                  "Your Balance",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 69, 69, 69),
-                  ),
-                ),
-                Text(
-                  balance,
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
+          CircleAvatar(
+            radius: 80.0 / 2,
+            backgroundColor: _randomColor(),
+            child: Text(
+              getInitials(name),
+              style: const TextStyle(
+                fontSize: 80.0 * 0.4,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
-          /*3*/
-          // #docregion Icon
-          Icon(
-            Icons.star,
-            color: Colors.red[500],
-          ),
-          // #enddocregion Icon
-          const Text('41'),
+          SizedBox(width: 16), // Adjust spacing as needed
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                camelCase(name),
+                style: const TextStyle(
+                  fontSize: 80.0 * 0.3,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              ButtonWithText(
+                color: Color(0xFF838C98),
+                icon: Icons.location_on,
+                label: country,
+              ),
+            ],
+          )
         ],
       ),
     );
   }
-}
 
-class ButtonSection extends StatelessWidget {
-  const ButtonSection({super.key});
+  String camelCase(String name) {
+    List<String> words = name.split(' ');
+    String camelCaseString = '';
+    for (int i = 0; i < words.length; i++) {
+      camelCaseString +=
+          '${words[i][0].toUpperCase()}${words[i].substring(1)} ';
+    }
+    return camelCaseString;
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    final Color color = Theme.of(context).primaryColor;
-    return SizedBox(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          ButtonWithText(
-            color: color,
-            icon: Icons.call,
-            label: 'CALL',
-          ),
-          ButtonWithText(
-            color: color,
-            icon: Icons.near_me,
-            label: 'ROUTE',
-          ),
-          ButtonWithText(
-            color: color,
-            icon: Icons.share,
-            label: 'SHARE',
-          ),
-        ],
-      ),
+  String getInitials(String name) {
+    List<String> words = name.split(' ');
+    String initials = '';
+    for (String word in words) {
+      if (word.isNotEmpty) {
+        initials += word[0];
+      }
+    }
+    return initials.toUpperCase();
+  }
+
+  Color _randomColor() {
+    Random random = Random();
+    return Color.fromARGB(
+      255,
+      random.nextInt(123 - 0 + 1) + 0,
+      random.nextInt(123 - 0 + 1) + 0,
+      random.nextInt(123 - 0 + 1) + 0,
     );
   }
 }
@@ -207,20 +234,19 @@ class ButtonWithText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(icon, color: color),
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: color,
-            ),
+        const SizedBox(width: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: color,
           ),
         ),
       ],
@@ -248,46 +274,47 @@ class _ActivitySectionState extends State<ActivitySection> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Row(
-        children: [
-          Expanded(
-            /*1*/
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /*2*/
-                TextButton(
-                  onPressed: _navigateToActivityHistory,
-                  child: Text(
-                    widget.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+    return Text(
+      // onPressed: _navigateToActivityHistory,
+      widget.name,
+      style: const TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
 }
 
 class Lists extends StatelessWidget {
-  const Lists({super.key});
+  final BleDB.FirebaseHelper dbBleHelper;
+  const Lists({super.key, required this.dbBleHelper});
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: ListSection(items: [
-        ListItemData(title: 'a', subtitle: 'Subtitle A'),
-        ListItemData(title: 'b', subtitle: 'Subtitle B'),
-        ListItemData(title: 'c', subtitle: 'Subtitle C'),
-        ListItemData(title: 'd', subtitle: 'Subtitle D'),
-        ListItemData(title: 'e', subtitle: 'Subtitle E'),
-      ]),
+    child: FutureBuilder<List<Map<String, dynamic>>?>(
+        future: dbBleHelper.getStoredEmergencies(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator(); // While data is loading
+          }
+          if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          }
+          List<ListItemData> items = snapshot.data!.map((data) {
+            // Assuming your Firebase document fields are 'title', 'subtitle', and 'time'
+            String title = data['data'];
+            // String subtitle = data['subtitle'] ?? '';
+            // String time = data['time'] ?? '';
+            return ListItemData(
+              title: title,
+              subtitle: "subtitle",
+              time: "time",
+            );
+          }).toList();
+          return ListSection(items: items);
+        },
+      ),
     );
   }
 }
@@ -306,8 +333,31 @@ class ListSection extends StatelessWidget {
       itemCount: items.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(items[index].title),
-          subtitle: Text(items[index].subtitle),
+          contentPadding: EdgeInsets.zero,
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  items[index].title,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                items[index].time,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey, // Adjust color as needed
+                ),
+              ),
+            ],
+          ),
+          subtitle: Text(
+            items[index].subtitle,
+            textAlign: TextAlign.left,
+            style: const TextStyle(
+              color: Colors.grey, // Adjust color as needed
+            ),
+          ),
         );
       },
     );
@@ -317,29 +367,11 @@ class ListSection extends StatelessWidget {
 class ListItemData {
   final String title;
   final String subtitle;
+  final String time;
 
   ListItemData({
     required this.title,
     required this.subtitle,
+    required this.time
   });
 }
-
-// // #docregion ImageSection
-// class ImageSection extends StatelessWidget {
-//   const ImageSection({super.key, required this.image});
-
-//   final String image;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // #docregion Image-asset
-//     return Image.asset(
-//       image,
-//       width: 600,
-//       height: 240,
-//       fit: BoxFit.cover,
-//     );
-//     // #enddocregion Image-asset
-//   }
-// }
-// #enddocregion ImageSection

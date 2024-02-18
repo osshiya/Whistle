@@ -32,21 +32,20 @@
     </application>
 
     <!--BLUETOOTH PERMISSION-->
-    <!-- Request legacy Bluetooth permissions on older devices. -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <!-- Needed only if your app looks for Bluetooth devices.
-             If your app doesn't use Bluetooth scan results to derive physical
-             location information, you can strongly assert that your app
-             doesn't derive physical location. -->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    <!-- Needed only if your app makes the device discoverable to Bluetooth
-      devices. -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-    <!-- Needed only if your app communicates with already-paired Bluetooth
-           devices. -->
+    <!-- Tell Google Play Store that your app uses Bluetooth LE
+         Set android:required="true" if bluetooth is necessary -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+
+    <!-- New Bluetooth permissions in Android 12
+    https://developer.android.com/about/versions/12/features/bluetooth-permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <!--bibo01 : hardware option-->
-    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+
+    <!-- legacy for Android 11 or lower -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
+
+    <!-- legacy for Android 9 or lower -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 </manifest>
