@@ -8,7 +8,7 @@ import 'dart:math';
 import 'package:flutter_app/utils/snackbar.dart';
 
 import 'package:flutter_app/screens/bluetooth_off_screen.dart';
-import 'package:flutter_app/screens/bluetooth_on_screen.dart';
+import 'package:flutter_app/utils/bluetooth_on_screen.dart';
 
 class DeviceScreen extends StatefulWidget {
   final BluetoothDevice device;
