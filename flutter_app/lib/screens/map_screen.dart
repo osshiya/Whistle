@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 // import 'package:flutter_app/features/tasks_history.dart';
 
-import 'package:flutter_app/models/db.dart';
+import 'package:flutter_app/models/authDB.dart';
 
 class MapScreen extends StatefulWidget {
   static const title = 'Map';
