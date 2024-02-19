@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 
 import '../models/authDB.dart';
-import '../models/authDB.dart';
-import '../models/authDB.dart';
 
 class FriendsScreen extends StatefulWidget {
   static const title = 'Friends';
@@ -21,32 +19,47 @@ class _FriendsScreenState extends State<FriendsScreen> {
   TextEditingController searchController = TextEditingController();
   List<String>? friendsList = [];
 
-
   @override
   void initState() {
     super.initState();
     dbAuthHelper = AuthDB.FirebaseHelper();
     dbHelper = FirebaseHelper();
-
-    _loadFriends(); // Load friends when the widget is initialized
+    _loadFriends();
   }
 
   Future<void> _loadFriends() async {
-    // Replace this with your logic to get the list of friends
-    // For example, dbHelper.getFriends()
-    friendsList = ["Tom", "John", "Mary"];
-    setState(() {}); // Trigger a rebuild to update the UI
+    String? uid = await dbAuthHelper.getStoredUid();
+
+    if (uid != null) {
+      List<String> friends = await dbHelper.getFriends(uid);
+      setState(() {
+        friendsList = friends;
+      });
+    } else {
+      print('Error: User email is null');
+    }
   }
 
   Future<void> _deleteFriend(String friendEmail) async {
     // Implement your delete logic here
     // For example, dbHelper.deleteFriend(friendEmail);
-
+    String? myEmail = await dbAuthHelper.getStoredEmail();
+    Map<String, dynamic>? friendData = await dbHelper.getUserByEmail(friendEmail);
+    if (friendData != null && friendData.isNotEmpty) {
+      // Extract the 'friends' array from friendData
+      List<String> friendsList2 = List<String>.from(friendData['friends'] ?? []);
+      friendsList2!.remove(myEmail);
+      await dbHelper.updateFriendsList(friendEmail, friendsList2!);
+      // Now you can use the friendsList
+      print("Friends List: $friendsList");
+    } else {
+      // No user found with the specified email
+      print("No user found with email: $friendEmail");
+    }
+    friendsList!.remove(friendEmail);
+    await dbHelper.updateFriendsList(myEmail, friendsList!);
     // Update the UI after deletion
-    setState(() {
-      friendsList!.remove(friendEmail);
-    });
-
+    await _loadFriends();
   }
 
   @override
@@ -77,30 +90,21 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         ),
                       ),
                     ),
-
                     IconButton(
                       icon: Icon(Icons.add),
                       onPressed: () async {
-                        // Get the email from the text field
+
                         String friendEmail = searchController.text.trim();
 
                         if (friendEmail.isNotEmpty) {
                           try {
-                            // Access the email from the user data snapshot
                             String? email = userData;
-                            print("My email: $email");
-
-                            // Call the getUserByEmail method to get the user object
                             Map<String, dynamic>? friendData = await dbHelper.getUserByEmail(friendEmail);
 
                             if (friendData != null && friendData.isNotEmpty) {
-                              // Friend found, you can now use friendData
-                              print("Friend found: $friendData");
-                              print("Your email: $email");
-                              dbHelper.addFriendByEmail(email!, friendEmail);
-                              dbHelper.addFriendByEmail(friendEmail, email);
-                              // Implement the logic to add the friend to your friend list
-                              // This might involve updating Firestore or your local state
+                              await dbHelper.addFriendByEmail(email!, friendEmail);
+                              await dbHelper.addFriendByEmail(friendEmail, email);
+                              await _loadFriends();
                             } else {
                               // No user found with the specified email
                               print("No user found with email: $friendEmail");
@@ -119,7 +123,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 );
               }
             },
-
           ),
           Expanded(
             child: FutureBuilder(
@@ -141,8 +144,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       return Card(
                         margin: EdgeInsets.all(8.0),
                         child: ListTile(
-
-
                           title: Text(friendsList![index]),
                           trailing: IconButton(
                             icon: Icon(Icons.delete),
@@ -150,7 +151,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               _showDeleteConfirmationDialog(friendsList![index]);
                             },
                           ),
-
                         ),
                       );
                     },
