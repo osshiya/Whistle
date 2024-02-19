@@ -93,6 +93,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     IconButton(
                       icon: Icon(Icons.add),
                       onPressed: () async {
+
                         String friendEmail = searchController.text.trim();
 
                         if (friendEmail.isNotEmpty) {
@@ -163,6 +164,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       ),
     );
   }
+
 
   Future<void> _showDeleteConfirmationDialog(String friendEmail) async {
     return showDialog(

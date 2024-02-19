@@ -96,6 +96,7 @@ class FirebaseHelper {
     }
   }
 
+
   Future<void> updateFriendsList(String email, List<String> updatedFriends) async {
     try {
       // Get the user data along with UID
@@ -142,6 +143,7 @@ class FirebaseHelper {
       return [];
     }
   }
+
 
 
   Future<Map<String, dynamic>?> getUserData(String uid) async {
