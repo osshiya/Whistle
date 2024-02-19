@@ -24,9 +24,9 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   final _pageOptions = [
     const HomeScreen(),
+    const FriendsScreen(),
     const MapScreen(),
     const ReportScreen(),
-    const FriendsScreen(),
     // const ProfileScreen()
   ];
 
@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
   }
 
 // ====================================================================================
+
   @override
   Widget build(BuildContext context) {
     PreferredSizeWidget appBar;
@@ -72,6 +73,24 @@ class _HomePageState extends State<HomePage> {
         break;
       case 1:
         appBar = AppBar(
+          title: const Text(FriendsScreen.title),
+          actions: <Widget>[
+            IconButton(
+              icon: FriendsScreen.androidIcon,
+              tooltip: FriendsScreen.title,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const FriendsScreen()),
+                );
+              },
+            ),
+          ],
+        );
+        break;
+      case 2:
+        appBar = AppBar(
           title: const Text(MapScreen.title),
           actions: <Widget>[
             IconButton(
@@ -88,7 +107,7 @@ class _HomePageState extends State<HomePage> {
           ],
         );
         break;
-      case 2:
+      case 3:
         appBar = AppBar(
           title: const Text(ReportScreen.title),
           actions: <Widget>[
@@ -117,24 +136,6 @@ class _HomePageState extends State<HomePage> {
           ],
         );
         break;
-      case 3:
-        appBar = AppBar(
-          title: const Text(FriendsScreen.title),
-          actions: <Widget>[
-            IconButton(
-              icon: FriendsScreen.androidIcon,
-              tooltip: FriendsScreen.title,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const FriendsScreen()),
-                );
-              },
-            ),
-          ],
-        );
-        break;
       default:
         appBar = AppBar(title: const Text('Unknown Page'));
     }
@@ -150,16 +151,16 @@ class _HomePageState extends State<HomePage> {
             label: HomeScreen.title,
           ),
           BottomNavigationBarItem(
+            icon: FriendsScreen.androidIcon,
+            label: FriendsScreen.title,
+          ),
+          BottomNavigationBarItem(
             icon: MapScreen.androidIcon,
             label: MapScreen.title,
           ),
           BottomNavigationBarItem(
             icon: ReportScreen.androidIcon,
             label: ReportScreen.title,
-          ),
-          BottomNavigationBarItem(
-            icon: FriendsScreen.androidIcon,
-            label: FriendsScreen.title,
           ),
           // BottomNavigationBarItem(
           //   icon: HomeScreen.androidIcon,
