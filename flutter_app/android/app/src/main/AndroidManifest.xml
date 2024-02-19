@@ -29,6 +29,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAplZYrbxtrv3D81FvL_kPiALYNsFZf2fY"/>
     </application>
 
     <!--BLUETOOTH PERMISSION-->

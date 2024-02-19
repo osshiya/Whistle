@@ -70,7 +70,7 @@ class FirebaseHelper {
       await _firestore
           .collection('users')
           .doc(newUid)
-          .set({'uid': newUid, 'email': newEmail});
+          .set({'uid': newUid, 'email': newEmail, 'friends': []});
     } catch (e) {
       print('Error storing user data: $e');
     }
