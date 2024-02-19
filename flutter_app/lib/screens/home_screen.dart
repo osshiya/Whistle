@@ -15,6 +15,7 @@ import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/models/rtDB.dart' as rtDB;
 
+import 'package:flutter_app/pages/services.dart';
 import 'package:flutter_app/pages/settings.dart';
 
 class HomeScreen extends StatefulWidget {
