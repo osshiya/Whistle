@@ -16,6 +16,17 @@ class FirebaseHelper {
     }
     return storedUid ?? '';
   }
+  Future<String> getStoredEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedEmail= prefs.getString('email');
+
+    if (storedEmail != null) {
+      print('email: $storedEmail');
+    } else {
+      print('Email not found in SharedPreferences');
+    }
+    return storedEmail ?? '';
+  }
 
   Future<String> getUsername(String uid) async {
     DocumentSnapshot<Map<String, dynamic>> snapshot =
@@ -32,6 +43,59 @@ class FirebaseHelper {
     // Return an empty string if the username is not found or if the snapshot doesn't exist
     return '';
   }
+  Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    if (email != null && email.isNotEmpty) {
+      // Query the collection for the user with the specified email
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
+
+      // Check if the query returned any documents
+      if (querySnapshot.docs.isNotEmpty) {
+        // Assuming that email is unique, so there should be only one result
+        Map<String, dynamic>? data = querySnapshot.docs.first.data();
+        return data;
+      } else {
+        // Handle the case where no user is found with the specified email
+        print('No user found with email: $email');
+        return null;
+      }
+    } else {
+      // Handle the case where email is null or empty
+      print('Email is null or empty');
+      return null;
+    }
+  }
+
+
+  Future<void> addFriendByEmail(String email, String newFriendEmail) async {
+    try {
+      // Retrieve the user data based on email
+      Map<String, dynamic>? userData = await getUserByEmail(email);
+
+      if (userData != null && userData.containsKey('uid')) {
+        // Extract the current friends list from the user data
+        List<String> currentFriends = List<String>.from(userData['friends'] ?? []);
+
+        // Append the new friend email to the list
+        currentFriends.add(newFriendEmail);
+
+        // Update the 'friends' field in the user document based on email
+        await _firestore
+            .collection('users')
+            .doc(userData['uid'])
+            .update({'friends': currentFriends});
+
+        print('Friend added successfully');
+      } else {
+        print('User not found with email: $email');
+      }
+    } catch (e) {
+      print('Error adding friend: $e');
+    }
+  }
+
 
   Future<Map<String, dynamic>?> getUserData(String uid) async {
     if (uid != null && uid.isNotEmpty) {
