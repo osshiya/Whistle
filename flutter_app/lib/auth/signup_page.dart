@@ -29,6 +29,7 @@ class _SignupPageState extends State<SignupPage> {
   late FirebaseHelper dbHelper;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -54,7 +55,7 @@ class _SignupPageState extends State<SignupPage> {
       // await sendEmailVerification();
 
       // Store additional user data including the username
-      await dbHelper.storeUserData(userCredential);
+      await dbHelper.storeUserData(_nameController.text.trim(), userCredential);
 
       // Navigate to Login Page
       _navigateToLoginPage(context);
@@ -95,6 +96,20 @@ class _SignupPageState extends State<SignupPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                labelStyle:
+                TextStyle(color: Color(0xFF2B39C0)), // Change label color
+                prefixIcon: Icon(Icons.lock, color: Color(0xFF2B39C0)),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF2B39C0), width: 2.0),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 10.0),
+              ),
+            ),
             const SizedBox(height: 16.0),
             TextField(
               controller: _emailController,

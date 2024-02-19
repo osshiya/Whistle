@@ -62,7 +62,7 @@ class FirebaseHelper {
   }
 
   // Assuming UserCredential is obtained after registration
-  Future<void> storeUserData(UserCredential user) async {
+  Future<void> storeUserData(String name, UserCredential user) async {
     try {
       final newUid = user.user!.uid;
       final newEmail = user.user!.email;
@@ -70,7 +70,7 @@ class FirebaseHelper {
       await _firestore
           .collection('users')
           .doc(newUid)
-          .set({'uid': newUid, 'email': newEmail});
+          .set({'name': name, 'uid': newUid, 'email': newEmail});
     } catch (e) {
       print('Error storing user data: $e');
     }
