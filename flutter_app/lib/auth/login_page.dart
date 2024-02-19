@@ -44,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
       // Save the UID to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('uid', uid);
+      prefs.setString('email', _emailController.text);
 
       // Navigate to Home Page
       _navigateToHomePage();
