@@ -1,5 +1,6 @@
 // home_page.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_app/screens/friends_screen.dart';
 // import 'package:flutter/foundation.dart';
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> {
     const HomeScreen(),
     const MapScreen(),
     const ReportScreen(),
+    const FriendsScreen(),
     // const ProfileScreen()
   ];
 
@@ -115,6 +117,24 @@ class _HomePageState extends State<HomePage> {
           ],
         );
         break;
+      case 3:
+        appBar = AppBar(
+          title: const Text(FriendsScreen.title),
+          actions: <Widget>[
+            IconButton(
+              icon: FriendsScreen.androidIcon,
+              tooltip: FriendsScreen.title,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const FriendsScreen()),
+                );
+              },
+            ),
+          ],
+        );
+        break;
       default:
         appBar = AppBar(title: const Text('Unknown Page'));
     }
@@ -136,6 +156,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: ReportScreen.androidIcon,
             label: ReportScreen.title,
+          ),
+          BottomNavigationBarItem(
+            icon: FriendsScreen.androidIcon,
+            label: FriendsScreen.title,
           ),
           // BottomNavigationBarItem(
           //   icon: HomeScreen.androidIcon,
