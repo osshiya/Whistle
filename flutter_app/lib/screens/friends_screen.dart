@@ -14,11 +14,30 @@ class FriendsScreen extends StatefulWidget {
 class _FriendsScreenState extends State<FriendsScreen> {
   late FirebaseHelper dbHelper;
   TextEditingController searchController = TextEditingController();
+  List<String>? friendsList = [];
 
   @override
   void initState() {
     super.initState();
     dbHelper = FirebaseHelper();
+    _loadFriends(); // Load friends when the widget is initialized
+  }
+
+  Future<void> _loadFriends() async {
+    // Replace this with your logic to get the list of friends
+    // For example, dbHelper.getFriends()
+    friendsList = ["Tom", "John", "Mary"];
+    setState(() {}); // Trigger a rebuild to update the UI
+  }
+
+  Future<void> _deleteFriend(String friendEmail) async {
+    // Implement your delete logic here
+    // For example, dbHelper.deleteFriend(friendEmail);
+
+    // Update the UI after deletion
+    setState(() {
+      friendsList!.remove(friendEmail);
+    });
   }
 
   @override
@@ -47,34 +66,33 @@ class _FriendsScreenState extends State<FriendsScreen> {
               ),
             ],
           ),
-
           Expanded(
             child: FutureBuilder(
-              // Replace with your logic to get the list of friends
-              // For example, dbHelper.getFriends()
-              // You can use a ListView.builder for efficiency
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  List<String>? friendsList = snapshot.data as List<String>?;
-
-                  if (friendsList == null || friendsList.isEmpty) {
+                  if (friendsList == null || friendsList!.isEmpty) {
                     return Center(
                       child: Text('No friends yet'),
                     );
                   }
 
                   return ListView.builder(
-                    itemCount: friendsList.length,
+                    itemCount: friendsList!.length,
                     itemBuilder: (context, index) {
                       return Card(
                         margin: EdgeInsets.all(8.0),
                         child: ListTile(
-                          title: Text(friendsList[index]),
-                          // Add more details or actions as needed
+                          title: Text(friendsList![index]),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              _showDeleteConfirmationDialog(friendsList![index]);
+                            },
+                          ),
                         ),
                       );
                     },
@@ -84,12 +102,40 @@ class _FriendsScreenState extends State<FriendsScreen> {
               future: null, // Replace with your actual future function to get friends
             ),
           ),
-
         ],
       ),
     );
   }
+
+  Future<void> _showDeleteConfirmationDialog(String friendEmail) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Friend'),
+          content: Text('Are you sure you want to delete $friendEmail?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteFriend(friendEmail);
+                Navigator.pop(context); // Close the dialog after deletion
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
+
+
 
 
 
