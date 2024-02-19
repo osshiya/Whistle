@@ -71,6 +71,7 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
+
   // Navigate to Login Page
   void _navigateToLoginPage(BuildContext context) {
     Navigator.pushAndRemoveUntil(

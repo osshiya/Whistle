@@ -3,14 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_app/firebase_options.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
 
+import 'background_task.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callbackDispatcher);
+  Workmanager().registerPeriodicTask(
+    'backgroundTask',
+    'backgroundTask',
+    frequency: const Duration(minutes: 10), // Run every 10 minutes
+  );
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   [
     Permission.location,
