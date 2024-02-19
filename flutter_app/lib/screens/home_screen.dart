@@ -11,7 +11,7 @@ import 'package:geocoding/geocoding.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:flutter_app/features/tasks_history.dart';
-
+import 'package:flutter_app/models/rtDB.dart' as rtDB;
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/pages/settings.dart';
@@ -28,12 +28,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late AuthDB.FirebaseHelper dbAuthHelper;
+  late rtDB.RtdbHelper rtdbHelper;
   late BleDB.FirebaseHelper dbBleHelper;
   String? country;
 
   @override
   void initState() {
     super.initState();
+    rtdbHelper = rtDB.RtdbHelper();
     dbAuthHelper = AuthDB.FirebaseHelper();
     dbBleHelper = BleDB.FirebaseHelper();
     _getCurrentCountry();
@@ -74,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
           desiredAccuracy: LocationAccuracy.high);
       List<Placemark> placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);
+      String? uid = await dbAuthHelper.getStoredUid();
+      rtdbHelper.addUserWithCoordinates(uid, position.latitude, position.longitude);
       setState(() {
         country = placemarks.first.country;
       });
