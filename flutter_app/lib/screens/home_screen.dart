@@ -1,8 +1,7 @@
 // home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:math';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
 
 // import 'package:flutter/foundation.dart';
 // import 'package:familyjob/widgets.dart';
@@ -11,9 +10,11 @@ import 'package:geocoding/geocoding.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:flutter_app/features/tasks_history.dart';
-import 'package:flutter_app/models/rtDB.dart' as rtDB;
+
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
+import 'package:flutter_app/models/rtDB.dart' as rtDB;
+
 import 'package:flutter_app/pages/settings.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -40,51 +41,20 @@ class _HomeScreenState extends State<HomeScreen> {
     dbBleHelper = BleDB.FirebaseHelper();
     _getCurrentCountry();
   }
-
+  
   Future<void> _getCurrentCountry() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
     try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      String? uid = await dbAuthHelper.getStoredUid();
-      rtdbHelper.addUserWithCoordinates(uid, position.latitude, position.longitude);
-      setState(() {
-        country = placemarks.first.country;
-      });
+      String? currentCountry = await LocationService.getCurrentCountry();
+      if (mounted) { // Check if the widget is still mounted
+        setState(() {
+          country = currentCountry;
+        });
+      }
     } catch (e) {
       print('Error getting current country: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     } else if (!snapshot.hasData || snapshot.data == null) {
                       return const Text('User not found');
                     } else {
-                      String name = snapshot.data!['username'].toString();
+                      String name = snapshot.data!['name'].toString();
 
                       return TitleSection(
                         name: name,
@@ -174,7 +144,7 @@ class TitleSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                camelCase(name),
+                pascalCase(name),
                 style: const TextStyle(
                   fontSize: 80.0 * 0.3,
                   fontWeight: FontWeight.bold,
@@ -192,7 +162,7 @@ class TitleSection extends StatelessWidget {
     );
   }
 
-  String camelCase(String name) {
+  String pascalCase(String name) {
     List<String> words = name.split(' ');
     String camelCaseString = '';
     for (int i = 0; i < words.length; i++) {
@@ -268,7 +238,7 @@ class ActivitySection extends StatefulWidget {
 }
 
 class _ActivitySectionState extends State<ActivitySection> {
-// Navigate to Tasks History Page
+// Navigate to Activity History Page
   void _navigateToActivityHistory() {
     Navigator.push(
       context,
@@ -291,29 +261,52 @@ class _ActivitySectionState extends State<ActivitySection> {
 
 class Lists extends StatelessWidget {
   final BleDB.FirebaseHelper dbBleHelper;
+
   const Lists({super.key, required this.dbBleHelper});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-    child: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: dbBleHelper.getStoredEmergencies(),
+      child: FutureBuilder<List<Map<String, dynamic>>?>(
+        future: dbBleHelper.getStoredActivities(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // While data is loading
+            return Center(
+              child: CircularProgressIndicator(), // While data is loading
+            );
           }
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           }
+          if (!snapshot.hasData) {
+            return const Text('No data available');
+          }
           List<ListItemData> items = snapshot.data!.map((data) {
             // Assuming your Firebase document fields are 'title', 'subtitle', and 'time'
-            String title = data['data'];
-            // String subtitle = data['subtitle'] ?? '';
-            // String time = data['time'] ?? '';
+            String title = data['type'] ?? '';
+            String subtitle = data['user'] ?? '';
+            int? timestamp;
+            if (data['timestamp'] is int) {
+              timestamp = data['timestamp'];
+            } else if (data['timestamp'] is String) {
+              timestamp = int.tryParse(data['timestamp']);
+            }
+
+            DateTime? dateTime;
+            String? formattedTime = "";
+            if (timestamp != null) {
+              dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+
+              // Format DateTime
+              formattedTime = dateTime != null
+                  ? DateFormat('MMM dd, hh:mm a').format(dateTime)
+                  : '';
+            }
+
             return ListItemData(
               title: title,
-              subtitle: "subtitle",
-              time: "time",
+              subtitle: subtitle,
+              time: formattedTime,
             );
           }).toList();
           return ListSection(items: items);
@@ -373,9 +366,6 @@ class ListItemData {
   final String subtitle;
   final String time;
 
-  ListItemData({
-    required this.title,
-    required this.subtitle,
-    required this.time
-  });
+  ListItemData(
+      {required this.title, required this.subtitle, required this.time});
 }

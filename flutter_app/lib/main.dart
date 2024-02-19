@@ -6,6 +6,8 @@ import 'package:flutter_app/firebase_options.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'package:permission_handler/permission_handler.dart';
+
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
 

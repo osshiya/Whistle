@@ -16,6 +16,7 @@ class FirebaseHelper {
     }
     return storedUid ?? '';
   }
+
   Future<String> getStoredEmail() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? storedEmail= prefs.getString('email');
@@ -43,6 +44,7 @@ class FirebaseHelper {
     // Return an empty string if the username is not found or if the snapshot doesn't exist
     return '';
   }
+
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
     if (email != null && email.isNotEmpty) {
       // Query the collection for the user with the specified email
@@ -144,8 +146,6 @@ class FirebaseHelper {
     }
   }
 
-
-
   Future<Map<String, dynamic>?> getUserData(String uid) async {
     if (uid != null && uid.isNotEmpty) {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
@@ -175,7 +175,7 @@ class FirebaseHelper {
   }
 
   // Assuming UserCredential is obtained after registration
-  Future<void> storeUserData(UserCredential user) async {
+  Future<void> storeUserData(String name, UserCredential user) async {
     try {
       final newUid = user.user!.uid;
       final newEmail = user.user!.email;
@@ -183,7 +183,7 @@ class FirebaseHelper {
       await _firestore
           .collection('users')
           .doc(newUid)
-          .set({'uid': newUid, 'email': newEmail, 'friends': []});
+          .set({'name': name, 'uid': newUid, 'email': newEmail, 'friends': []});
     } catch (e) {
       print('Error storing user data: $e');
     }
