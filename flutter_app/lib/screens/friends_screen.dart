@@ -21,11 +21,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
   TextEditingController searchController = TextEditingController();
   List<String>? friendsList = [];
 
+
   @override
   void initState() {
     super.initState();
     dbAuthHelper = AuthDB.FirebaseHelper();
     dbHelper = FirebaseHelper();
+
     _loadFriends(); // Load friends when the widget is initialized
   }
 
@@ -44,6 +46,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     setState(() {
       friendsList!.remove(friendEmail);
     });
+
   }
 
   @override
@@ -74,6 +77,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         ),
                       ),
                     ),
+
                     IconButton(
                       icon: Icon(Icons.add),
                       onPressed: () async {
@@ -115,6 +119,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 );
               }
             },
+
           ),
           Expanded(
             child: FutureBuilder(
@@ -136,6 +141,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       return Card(
                         margin: EdgeInsets.all(8.0),
                         child: ListTile(
+
+
                           title: Text(friendsList![index]),
                           trailing: IconButton(
                             icon: Icon(Icons.delete),
@@ -143,6 +150,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               _showDeleteConfirmationDialog(friendsList![index]);
                             },
                           ),
+
                         ),
                       );
                     },
@@ -156,6 +164,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       ),
     );
   }
+
 
   Future<void> _showDeleteConfirmationDialog(String friendEmail) async {
     return showDialog(
