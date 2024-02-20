@@ -3,14 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 
-// import 'package:flutter/foundation.dart';
-// import 'package:familyjob/widgets.dart';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'package:flutter_app/features/tasks_history.dart';
-
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/models/rtDB.dart' as rtDB;
@@ -41,8 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
     dbAuthHelper = AuthDB.FirebaseHelper();
     dbBleHelper = BleDB.FirebaseHelper();
     _getCurrentCountry();
+    dbAuthHelper.saveFCMToken();
   }
-  
+
   Future<void> _getCurrentCountry() async {
     try {
       String? currentCountry = await LocationService.getCurrentCountry();
