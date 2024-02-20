@@ -106,7 +106,7 @@ class _MyApp extends State<MyApp> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ReportPage(id: message.data["id"])),
+            builder: (context) => ReportPage(id: message.data["id"], uid: message.data["uid"])),
       );
     }
     // Navigator.pushNamed(context, "/report", arguments: {'id': message.data["id"]});

@@ -16,13 +16,92 @@ import 'package:flutter_app/utils/formatter.dart';
 
 import 'package:flutter_app/utils/notification_handler.dart';
 
+class ViewReportPage extends StatefulWidget {
+  static const title = 'View Report';
+  static const androidIcon = Icon(Icons.edit);
+
+  const ViewReportPage({super.key, required this.id, required this.uid});
+
+  final String id;
+  final String uid;
+
+  @override
+  State<ViewReportPage> createState() => _ViewReportPageState();
+}
+
+class _ViewReportPageState extends State<ViewReportPage> {
+  late BleDB.FirebaseHelper dbBleHelper;
+  Map<String, dynamic>? _data;
+
+  @override
+  void initState() {
+    super.initState();
+    dbBleHelper = BleDB.FirebaseHelper();
+    _retrieveData();
+  }
+
+  Future<bool> deleteReport(String id) async {
+    try {
+      await dbBleHelper.deleteData(id, "report");
+      return true; // Deletion successful
+    } catch (error) {
+      print('Error deleting report: $error');
+      return false; // Deletion failed
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(ViewReportPage.title),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("ID: " + widget.id),
+            if (_data == null) // Show loading indicator if data is null
+              Center(child: CircularProgressIndicator()),
+            if (_data != null) ...[
+              // Show data if available
+              ListSection(
+                title: _data?['title'] ?? _data?['type'] ?? '',
+                subtitle: _data?['user'] ?? '',
+                timestamp: formatTimestamp(_data?['timestamp'] ?? ''),
+                description: _data?['desc'] ?? '',
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _retrieveData() async {
+    try {
+      // Retrieve data from the database or wherever it's stored
+      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.uid, widget.id);
+      setState(() {
+        _data = data; // Update the state with the new data
+      });
+    } catch (error) {
+      // Handle errors
+      print('Error retrieving data: $error');
+    }
+  }
+}
+
 class ReportPage extends StatefulWidget {
   static const title = 'View Report';
   static const androidIcon = Icon(Icons.edit);
 
-  const ReportPage({super.key, required this.id});
+  const ReportPage({super.key, required this.id, required this.uid});
 
   final String id;
+  final String uid;
 
   @override
   State<ReportPage> createState() => _ReportPageState();
@@ -62,7 +141,7 @@ class _ReportPageState extends State<ReportPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => EditReportPage(id: widget.id)),
+                    builder: (context) => EditReportPage(id: widget.id, uid: widget.uid)),
               ).then((_) {
                 _retrieveData();
               });
@@ -106,7 +185,7 @@ class _ReportPageState extends State<ReportPage> {
   Future<void> _retrieveData() async {
     try {
       // Retrieve data from the database or wherever it's stored
-      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.id);
+      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.uid, widget.id);
       setState(() {
         _data = data; // Update the state with the new data
       });
@@ -205,14 +284,14 @@ class _CreateReportPageState extends State<CreateReportPage> {
   void initState() {
     super.initState();
     dbBleHelper = BleDB.FirebaseHelper();
-    _refreshList();
+    // _refreshList();
   }
 
-  Future<void> _refreshList() async {
-    setState(() {
-      _futureData = dbBleHelper.getStoredReports();
-    });
-  }
+  // Future<void> _refreshList() async {
+  //   setState(() {
+  //     _futureData = dbBleHelper.getStoredReport(uid);
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -273,9 +352,10 @@ class EditReportPage extends StatefulWidget {
   static const title = 'Edit Report';
   static const androidIcon = Icon(Icons.done);
 
-  const EditReportPage({super.key, required this.id});
+  const EditReportPage({super.key, required this.id, required this.uid});
 
   final String id;
+  final String uid;
 
   @override
   State<EditReportPage> createState() => _EditReportPageState();
@@ -371,7 +451,7 @@ class _EditReportPageState extends State<EditReportPage> {
   Future<void> _retrieveData() async {
     try {
       // Retrieve data from the database or wherever it's stored
-      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.id);
+      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.uid, widget.id);
       setState(() {
         _data = data;
         _titleController.text = _data?['title'] ?? '';

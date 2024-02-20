@@ -1,11 +1,12 @@
 // home_screen.dart
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/models/rtDB.dart' as rtDB;
 
+import 'package:flutter_app/pages/emergency.dart';
+import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/pages/services.dart';
 import 'package:flutter_app/pages/settings.dart';
 import 'package:flutter_app/utils/formatter.dart';
@@ -122,7 +123,7 @@ class TitleSection extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 80.0 / 2,
-            backgroundColor: _randomColor(),
+            backgroundColor: randomColor(),
             child: Text(
               getInitials(name),
               style: const TextStyle(
@@ -153,37 +154,6 @@ class TitleSection extends StatelessWidget {
           )
         ],
       ),
-    );
-  }
-
-  String pascalCase(String name) {
-    List<String> words = name.split(' ');
-    String camelCaseString = '';
-    for (int i = 0; i < words.length; i++) {
-      camelCaseString +=
-          '${words[i][0].toUpperCase()}${words[i].substring(1)} ';
-    }
-    return camelCaseString;
-  }
-
-  String getInitials(String name) {
-    List<String> words = name.split(' ');
-    String initials = '';
-    for (String word in words) {
-      if (word.isNotEmpty) {
-        initials += word[0];
-      }
-    }
-    return initials.toUpperCase();
-  }
-
-  Color _randomColor() {
-    Random random = Random();
-    return Color.fromARGB(
-      255,
-      random.nextInt(123 - 0 + 1) + 0,
-      random.nextInt(123 - 0 + 1) + 0,
-      random.nextInt(123 - 0 + 1) + 0,
     );
   }
 }
@@ -278,7 +248,7 @@ class Lists extends StatelessWidget {
           List<ListItemData> items = snapshot.data!.map((data) {
             // Assuming your Firebase document fields are 'title', 'subtitle', and 'time'
             String title = data['type'] ?? '';
-            String subtitle = data['user'] ?? '';
+            String uid = data['user'] ?? '';
             int? timestamp;
             if (data['timestamp'] is int) {
               timestamp = data['timestamp'];
@@ -289,9 +259,11 @@ class Lists extends StatelessWidget {
             String? formattedTime = formatTimestamp(timestamp!);
 
             return ListItemData(
+              id: data['id'],
+              uid: uid,
               title: title,
-              subtitle: subtitle,
               time: formattedTime,
+              type: data['type']
             );
           }).toList();
           return ListSection(items: items);
@@ -334,12 +306,29 @@ class ListSection extends StatelessWidget {
             ],
           ),
           subtitle: Text(
-            items[index].subtitle,
+            items[index].uid,
             textAlign: TextAlign.left,
             style: const TextStyle(
               color: Colors.grey, // Adjust color as needed
             ),
           ),
+          onTap: () {
+            if(items[index].type == "Report") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ViewReportPage(id: items[index].id, uid: items[index].uid,)),
+              ).then((_) {
+                // widget.refreshCallback();
+              });
+            } else if (items[index].type == "Emergency") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EmergencyPage(id: items[index].id, uid: items[index].uid)),
+              ).then((_) {
+                // widget.refreshCallback();
+              });
+            }
+          },
         );
       },
     );
@@ -347,10 +336,12 @@ class ListSection extends StatelessWidget {
 }
 
 class ListItemData {
+  final String id;
+  final String uid;
   final String title;
-  final String subtitle;
   final String time;
+  final String type;
 
   ListItemData(
-      {required this.title, required this.subtitle, required this.time});
+      {required this.id, required this.uid, required this.title, required this.time, required this.type});
 }

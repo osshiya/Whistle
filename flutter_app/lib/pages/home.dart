@@ -66,8 +66,18 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-          ],
-        );
+            IconButton(
+              icon: Icon(Icons.settings),
+              tooltip: "Settings",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SettingsPage()),
+                );
+              },
+            ),
+          ],        );
         break;
       case 1:
         appBar = AppBar(

@@ -65,7 +65,7 @@ class _ListsState extends State<Lists> {
 
   Future<void> _refreshList() async {
     setState(() {
-      _futureData = widget.dbBleHelper.getStoredReports();
+      _futureData = widget.dbBleHelper.getMyStoredReports();
     });
   }
 
@@ -88,15 +88,16 @@ class _ListsState extends State<Lists> {
           }
           List<ListItemData> items = snapshot.data!.map((data) {
             // Assuming your Firebase document fields are 'title', 'subtitle', and 'time'
+            String id = data['id'] ?? '';
+            String uid = data['uid'] ?? '';
             String title = data?['title'] ?? data?['type'] ?? '';
             String subtitle = data?['desc'] ?? '';
             int timestamp = data?['timestamp'] ?? '';
-            String id = data['id'] ?? '';
 
             String formattedTime = formatTimestamp(timestamp);
 
             return ListItemData(
-                title: title, subtitle: subtitle, time: formattedTime, id: id);
+                id: id, uid:uid, title: title, subtitle: subtitle, time: formattedTime);
           }).toList();
           return ListSection(items: items, refreshCallback: _refreshList);
         },
@@ -120,66 +121,69 @@ class ListSection extends StatefulWidget {
 }
 
 class _ListSectionState extends State<ListSection> {
-
   @override
   Widget build(BuildContext context) {
     return
-      // RefreshIndicator(
-      // onRefresh: _refreshList,
-      // child:
-      ListView.builder(
-        itemCount: widget.items.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.items[index].title,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+        // RefreshIndicator(
+        // onRefresh: _refreshList,
+        // child:
+        ListView.builder(
+      itemCount: widget.items.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.items[index].title,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  widget.items[index].time,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey, // Adjust color as needed
-                  ),
-                ),
-              ],
-            ),
-            subtitle: Text(
-              widget.items[index].subtitle,
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                color: Colors.grey, // Adjust color as needed
               ),
+              Text(
+                widget.items[index].time,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey, // Adjust color as needed
+                ),
+              ),
+            ],
+          ),
+          subtitle: Text(
+            widget.items[index].subtitle,
+            textAlign: TextAlign.left,
+            style: const TextStyle(
+              color: Colors.grey, // Adjust color as needed
             ),
-            onTap: () {
-             Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportPage(id: widget.items[index].id)),
-              ).then((_) {
-               widget.refreshCallback();
-              });
-            }, // Handle your onTap here.
-          );
-        },
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ReportPage(id: widget.items[index].id, uid: widget.items[index].uid,)),
+            ).then((_) {
+              widget.refreshCallback();
+            });
+          }, // Handle your onTap here.
+        );
+      },
       // ),
     );
   }
 }
 
 class ListItemData {
+  final String id;
+  final String uid;
   final String title;
   final String subtitle;
   final String time;
-  final String id;
 
-  ListItemData(
-      {required this.title,
-      required this.subtitle,
-      required this.time,
-      required this.id});
+  ListItemData({
+    required this.id,
+    required this.uid,
+    required this.title,
+    required this.subtitle,
+    required this.time,
+  });
 }

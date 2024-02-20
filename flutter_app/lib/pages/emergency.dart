@@ -17,12 +17,13 @@ import 'package:flutter_app/utils/formatter.dart';
 import 'package:flutter_app/utils/notification_handler.dart';
 
 class EmergencyPage extends StatefulWidget {
-  static const title = 'View Emergency';
+  static const title = 'Emergency';
   static const androidIcon = Icon(Icons.emergency);
 
-  const EmergencyPage({super.key, required this.id});
+  const EmergencyPage({super.key, required this.id, required this.uid});
 
   final String id;
+  final String uid;
 
   @override
   State<EmergencyPage> createState() => _EmergencyPageState();
@@ -39,62 +40,68 @@ class _EmergencyPageState extends State<EmergencyPage> {
     _retrieveData();
   }
 
-  Future<bool> deleteReport(String id) async {
-    try {
-      await dbBleHelper.deleteData(id, "report");
-      return true; // Deletion successful
-    } catch (error) {
-      print('Error deleting report: $error');
-      return false; // Deletion failed
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFF5554),
       appBar: AppBar(
-        title: const Text(ReportPage.title),
+        title: const Text(EmergencyPage.title, style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFFFF5554),
+        iconTheme: IconThemeData(color: Colors.white),
         actions: <Widget>[
           IconButton(
-            icon: ReportPage.androidIcon,
-            tooltip: "Edit Report",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => EditReportPage(id: widget.id)),
-              ).then((_) {
-                _retrieveData();
-              });
-            },
-          ),
-          IconButton(
-              icon: Icon(Icons.delete),
-              tooltip: "Delete Report",
+              icon: Icon(Icons.call),
+              tooltip: "Call Emergency",
               onPressed: () async {
-                bool deletionResult = await deleteReport(widget.id);
-                if (deletionResult) {
-                  Navigator.pop(context);
-                }
+                // bool deletionResult = await deleteReport(widget.id);
+                // if (deletionResult) {
+                //   Navigator.pop(context);
+                // }
               }),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("ID: " + widget.id),
+            Container(
+              width: 180.0, // Set the width of the container
+              height: 180.0, // Set the height of the container
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: Colors.white,
+                    width: 18.0 * 0.4), // Define the border
+              ),
+              child: CircleAvatar(
+                radius: 180.0 / 2,
+                backgroundColor: randomColor(),
+                child: Text(
+                  getInitials("name"),
+                  style: const TextStyle(
+                    fontSize: 180.0 * 0.4,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            // const SizedBox(height: 2),
+            const Text("SOS",
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 180.0 * 0.4,
+                    color: Colors.white)),
             if (_data == null) // Show loading indicator if data is null
               Center(child: CircularProgressIndicator()),
             if (_data != null) ...[
               // Show data if available
-              ListSection(
+              MessageSection(
                 title: _data?['title'] ?? _data?['type'] ?? '',
                 subtitle: _data?['user'] ?? '',
                 timestamp: formatTimestamp(_data?['timestamp'] ?? ''),
-                description: _data?['desc'] ?? '',
               ),
             ],
           ],
@@ -106,7 +113,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
   Future<void> _retrieveData() async {
     try {
       // Retrieve data from the database or wherever it's stored
-      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.id);
+      Map<String, dynamic>? data =
+          await dbBleHelper.getStoredEmergency(widget.uid, widget.id);
       setState(() {
         _data = data; // Update the state with the new data
       });
@@ -117,269 +125,55 @@ class _EmergencyPageState extends State<EmergencyPage> {
   }
 }
 
-class ListSection extends StatelessWidget {
-  const ListSection({
+class MessageSection extends StatelessWidget {
+  const MessageSection({
     Key? key,
     required this.title,
     required this.subtitle,
     required this.timestamp,
-    required this.description,
   }) : super(key: key);
 
   final String title;
   final String subtitle;
   final String timestamp;
-  final String description;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            title,
+            "$subtitle has activated an emergency alert. He/She may be in danger right now.",
             style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              // fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
-          // Add spacing between title and subtitle
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Add spacing between subtitle and timestamp
+          const SizedBox(height: 12),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.access_time, size: 18, color: Colors.grey),
+              const Icon(Icons.access_time, size: 18, color: Colors.white),
               const SizedBox(width: 4),
               // Add spacing between icon and timestamp
               Text(
                 timestamp,
                 style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
+                  fontSize: 12,
+                  // fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          // Add spacing between timestamp and description
-          Text(
-            description,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-          ),
         ],
       ),
     );
-  }
-}
-
-class CreateReportPage extends StatefulWidget {
-  static const title = 'New Report';
-  static const androidIcon = Icon(Icons.add);
-
-  const CreateReportPage({super.key});
-
-  @override
-  State<CreateReportPage> createState() => _CreateReportPageState();
-}
-
-class _CreateReportPageState extends State<CreateReportPage> {
-  late BleDB.FirebaseHelper dbBleHelper;
-  late Future<List<Map<String, dynamic>>?> _futureData;
-
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    dbBleHelper = BleDB.FirebaseHelper();
-    _refreshList();
-  }
-
-  Future<void> _refreshList() async {
-    setState(() {
-      _futureData = dbBleHelper.getStoredReports();
-    });
-  }
-
-  @override
-  void dispose() {
-    // Clean up controller
-    _titleController.dispose();
-    _descController.dispose();
-    super.dispose();
-  }
-
-  void createReport(String title, String content) {
-    dbBleHelper.createData("report", title, content);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) => const ReportScreen(),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text(EditReportPage.title),
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.done),
-                tooltip: "Create Report",
-                onPressed: () {
-                  createReport(_titleController.text, _descController.text);
-                }),
-          ],
-        ),
-        body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _titleController, // Predefined value
-                  decoration: InputDecoration(labelText: 'Title'),
-                ),
-                SizedBox(height: 16),
-                TextFormField(
-                  controller: _descController, // Predefined value
-                  decoration: InputDecoration(labelText: 'Description'),
-                  maxLines: null, // Unlimited number of lines
-                  keyboardType: TextInputType.multiline,
-                ),
-              ],
-            )));
-  }
-}
-
-class EditReportPage extends StatefulWidget {
-  static const title = 'Edit Report';
-  static const androidIcon = Icon(Icons.done);
-
-  const EditReportPage({super.key, required this.id});
-
-  final String id;
-
-  @override
-  State<EditReportPage> createState() => _EditReportPageState();
-}
-
-class _EditReportPageState extends State<EditReportPage> {
-  late BleDB.FirebaseHelper dbBleHelper;
-  Map<String, dynamic>? _data;
-
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    dbBleHelper = BleDB.FirebaseHelper();
-
-    _retrieveData();
-  }
-
-  @override
-  void dispose() {
-    // Clean up controller
-    _titleController.dispose();
-    _descController.dispose();
-    super.dispose();
-  }
-
-
-  void updateReport(String title, String content) {
-    dbBleHelper.updateData(widget.id, "report", title, content);
-    sendPushMessage("123", "report");
-    Navigator.pop(context);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text(EditReportPage.title),
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.done),
-                tooltip: "Update Report",
-                onPressed: () {
-                  updateReport(_titleController.text, _descController.text);
-                }),
-          ],
-        ),
-        body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("ID: " + widget.id),
-                  if (_data == null) // Show loading indicator if data is null
-                    Center(child: CircularProgressIndicator()),
-                  if (_data != null) ...[
-                    // Show data if available
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time,
-                            size: 18, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        // Add spacing between icon and timestamp
-                        Text(
-                          formatTimestamp(_data?['timestamp']),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _titleController, // Predefined value
-                      decoration: InputDecoration(labelText: 'Title'),
-                    ),
-                    SizedBox(height: 16),
-                    TextFormField(
-                      controller: _descController, // Predefined value
-                      decoration: InputDecoration(labelText: 'Description'),
-                      maxLines: null, // Unlimited number of lines
-                      keyboardType: TextInputType.multiline,
-                    ),
-                  ],
-                ])));
-  }
-
-  Future<void> _retrieveData() async {
-    try {
-      // Retrieve data from the database or wherever it's stored
-      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.id);
-      setState(() {
-        _data = data;
-        _titleController.text = _data?['title'] ?? '';
-        _descController.text = _data?['desc'] ?? '';
-      });
-    } catch (error) {
-      // Handle errors
-      print('Error retrieving data: $error');
-    }
   }
 }
