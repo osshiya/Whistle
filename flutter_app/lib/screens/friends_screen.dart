@@ -16,7 +16,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   late AuthDB.FirebaseHelper dbAuthHelper;
   late FriendDB.FirebaseHelper dbFriendHelper;
   TextEditingController searchController = TextEditingController();
-  List<String>? friendsList = [];
+  List<Map<String, dynamic>>? friendsList = [];
 
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     String? uid = await dbAuthHelper.getStoredUid();
 
     if (uid != null) {
-      List<String> friends = await dbFriendHelper.getFriends(uid);
+      List<Map<String, dynamic>> friends = await dbFriendHelper.getFriends(uid);
       setState(() {
         friendsList = friends;
       });
@@ -46,8 +46,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
     Map<String, dynamic>? friendData = await dbFriendHelper.getUserByEmail(friendEmail);
     if (friendData != null && friendData.isNotEmpty) {
       // Extract the 'friends' array from friendData
-      List<String> friendsList2 = List<String>.from(friendData['friends'] ?? []);
-      friendsList2!.remove(myEmail);
+      List<Map<String, dynamic>> friendsList2 = List<Map<String, dynamic>>.from(friendData['friends'] ?? []);
+      friendsList2.removeWhere((friend) => friend['email'] == myEmail);
       await dbFriendHelper.updateFriendsList(friendEmail, friendsList2!);
       // Now you can use the friendsList
       print("Friends List: $friendsList");
@@ -55,7 +55,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       // No user found with the specified email
       print("No user found with email: $friendEmail");
     }
-    friendsList!.remove(friendEmail);
+    friendsList!.removeWhere((friend) => friend['email'] == friendEmail);
     await dbFriendHelper.updateFriendsList(myEmail, friendsList!);
     // Update the UI after deletion
     await _loadFriends();
@@ -143,11 +143,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       return Card(
                         margin: EdgeInsets.all(8.0),
                         child: ListTile(
-                          title: Text(friendsList![index]),
+                          title: Text(friendsList![index]['email']),
                           trailing: IconButton(
                             icon: Icon(Icons.delete),
                             onPressed: () {
-                              _showDeleteConfirmationDialog(friendsList![index]);
+                              _showDeleteConfirmationDialog(friendsList![index]['email']);
                             },
                           ),
                         ),
