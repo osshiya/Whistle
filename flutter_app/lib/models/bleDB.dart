@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_app/utils/notification_handler.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -119,6 +120,22 @@ class FirebaseHelper {
         return docData;
       }).toList();
 
+      data.sort((a, b) {
+        // Parse timestamps, handling both int and String types
+        int timestampA = a['timestamp'] is int
+            ? a['timestamp']
+            : int.tryParse(a['timestamp']) ?? 0;
+        int timestampB = b['timestamp'] is int
+            ? b['timestamp']
+            : int.tryParse(b['timestamp']) ?? 0;
+
+        // Compare timestamps and sort in descending order (latest first)
+        return timestampB.compareTo(timestampA);
+      });
+
+      // Return the combined data
+      return data;
+
       return data;
     } else {
       // Handle the case where uid is null or empty
@@ -172,8 +189,64 @@ class FirebaseHelper {
         'user': uid,
         'timestamp': timestamp
       });
+      sendPushMessage(uid, type);
     } catch (e) {
       print('Error storing data: $e');
+    }
+  }
+
+  Future<void> createData(String type, String title, String desc) async {
+    String uid = await getStoredUid();
+    if (uid != null) {
+      try {
+        await _firestore.collection('users/$uid/$type').doc().set({
+          'type': type[0].toUpperCase() + type.substring(1),
+          'user': uid,
+          'timestamp': DateTime.now().millisecondsSinceEpoch.toInt(),
+          'title': title,
+          'desc': desc
+        });
+      } catch (e) {
+        print('Error updating data: $e');
+      }
+    } else {
+      // Handle the case where uid is null or empty
+      print('UID is null or empty');
+      return null;
+    }
+  }
+
+  Future<void> updateData(
+      String id, String type, String title, String desc) async {
+    String uid = await getStoredUid();
+    if (uid != null) {
+      try {
+        await _firestore
+            .collection('users/$uid/$type')
+            .doc(id)
+            .update({'title': title, 'desc': desc});
+      } catch (e) {
+        print('Error updating data: $e');
+      }
+    } else {
+      // Handle the case where uid is null or empty
+      print('UID is null or empty');
+      return null;
+    }
+  }
+
+  Future<void> deleteData(String id, String type) async {
+    String uid = await getStoredUid();
+    if (uid != null) {
+      try {
+        await _firestore.collection('users/$uid/$type').doc(id).delete();
+      } catch (e) {
+        print('Error updating data: $e');
+      }
+    } else {
+      // Handle the case where uid is null or empty
+      print('UID is null or empty');
+      return null;
     }
   }
 }

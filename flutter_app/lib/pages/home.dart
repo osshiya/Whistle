@@ -1,6 +1,5 @@
 // home_page.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screens/friends_screen.dart';
 // import 'package:flutter/foundation.dart';
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,20 +8,29 @@ import 'package:flutter_app/screens/friends_screen.dart';
 import 'package:flutter_app/screens/home_screen.dart';
 import 'package:flutter_app/screens/map_screen.dart';
 import 'package:flutter_app/screens/report_screen.dart';
-
+import 'package:flutter_app/pages/report.dart';
+import 'package:flutter_app/screens/friends_screen.dart';
 import 'package:flutter_app/pages/bluetooth.dart';
 import 'package:flutter_app/pages/settings.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int selectedIndex;
+
+  const HomePage({super.key, this.selectedIndex = 0});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  late int _selectedIndex;
 
-  int _selectedIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
+  }
+
   final _pageOptions = [
     const HomeScreen(),
     const FriendsScreen(),
@@ -58,54 +66,17 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            IconButton(
-              icon: SettingsPage.androidIcon,
-              tooltip: SettingsPage.title,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsPage()),
-                );
-              },
-            ),
           ],
         );
         break;
       case 1:
         appBar = AppBar(
           title: const Text(FriendsScreen.title),
-          actions: <Widget>[
-            IconButton(
-              icon: FriendsScreen.androidIcon,
-              tooltip: FriendsScreen.title,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const FriendsScreen()),
-                );
-              },
-            ),
-          ],
         );
         break;
       case 2:
         appBar = AppBar(
           title: const Text(MapScreen.title),
-          actions: <Widget>[
-            IconButton(
-              icon: MapScreen.androidIcon,
-              tooltip: MapScreen.title,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const MapScreen()),
-                );
-              },
-            ),
-          ],
         );
         break;
       case 3:
@@ -113,25 +84,23 @@ class _HomePageState extends State<HomePage> {
           title: const Text(ReportScreen.title),
           actions: <Widget>[
             IconButton(
-              icon: ReportScreen.androidIcon,
-              tooltip: ReportScreen.title,
+              icon: Icon(Icons.add),
+              tooltip: "New Report",
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const ReportScreen()),
-                );
-              },
-            ),
-            IconButton(
-              icon: ReportScreen.androidIcon,
-              tooltip: ReportScreen.title,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const ReportScreen()),
-                );
+                      builder: (context) => const CreateReportPage()),
+                ).then((_) {
+                  // setState((){});
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => const HomePage(selectedIndex: 3,),
+                    ),
+                    (route) => false,
+                  );
+                });
               },
             ),
           ],
@@ -171,6 +140,8 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF2F7BEE),
         onTap: _onItemTapped,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
       ),
     );
   }

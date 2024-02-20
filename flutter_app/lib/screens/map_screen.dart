@@ -16,7 +16,7 @@ import 'package:flutter_app/models/authDB.dart';
 
 class MapScreen extends StatefulWidget {
   static const title = 'Map';
-  static const androidIcon = Icon(Icons.map);
+  static const androidIcon = Icon(Icons.location_on);
 
   const MapScreen({super.key});
 
