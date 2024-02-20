@@ -64,7 +64,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Padding(
+        padding: const EdgeInsets.only(left: 6),
+        child: Column(
         children: [
           FutureBuilder<String>(
             future: dbAuthHelper.getStoredEmail(), // Replace 'uid' with your actual UID
@@ -84,7 +86,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         child: TextField(
                           controller: searchController,
                           decoration: InputDecoration(
-                            hintText: "Write friend's email",
+                            hintText: "Search Friend by Email",
                           ),
                         ),
                       ),
@@ -160,6 +162,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

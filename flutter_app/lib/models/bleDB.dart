@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_app/utils/notification_handler.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -188,6 +189,7 @@ class FirebaseHelper {
         'user': uid,
         'timestamp': timestamp
       });
+      sendPushMessage(uid, type);
     } catch (e) {
       print('Error storing data: $e');
     }
