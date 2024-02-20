@@ -2,32 +2,47 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_app/firebase_options.dart';
-import 'package:workmanager/workmanager.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_app/pages/report.dart';
 
+import 'package:workmanager/workmanager.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
-
-import 'background_task.dart';
+import 'package:flutter_app/background_task.dart';
+import 'package:flutter_app/utils/notification_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   Workmanager().initialize(callbackDispatcher);
   Workmanager().registerPeriodicTask(
     'backgroundTask',
     'backgroundTask',
     frequency: const Duration(minutes: 10), // Run every 10 minutes
   );
+
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+
+  NotificationSettings notificationSettings  = await firebaseMessaging.requestPermission();
+  if (notificationSettings.authorizationStatus == AuthorizationStatus.authorized) {
+    await firebaseMessaging.setAutoInitEnabled(true);
+    // final fcmToken = await _firebaseMessaging.getToken();
+    // print("FCMToken $fcmToken");
+  }
+
   [
     Permission.location,
     Permission.storage,
     Permission.bluetooth,
     Permission.bluetoothConnect,
-    Permission.bluetoothScan
+    Permission.bluetoothScan,
+    Permission.notification
   ].request().then((status) {
     runApp(const MyApp());
   });
@@ -69,7 +84,7 @@ class MyApp extends StatelessWidget {
 class AuthenticationWrapper extends StatelessWidget {
   const AuthenticationWrapper({Key? key}) : super(key: key);
 
-@override
+  @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
