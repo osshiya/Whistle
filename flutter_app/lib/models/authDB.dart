@@ -43,7 +43,7 @@ class FirebaseHelper {
       }
     }
 
-    // Return an empty string if the username is not found or if the snapshot doesn't exist
+    // Return an empty string if not found
     return '';
   }
 
@@ -51,27 +51,19 @@ class FirebaseHelper {
     if (uid != null && uid.isNotEmpty) {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
           await _firestore.collection('users').doc(uid).get();
-      // Further processing with the snapshot
 
       if (snapshot.exists) {
         Map<String, dynamic>? data = snapshot.data();
 
-        // if (data != null && data.containsKey('username')) {
-        //   return data['username'].toString();
-        // }
         return data;
       } else {
-        // Handle the case where uid is null or empty
         print('Snapshot is null or empty');
         return null;
       }
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
-    // Return an empty string if the username is not found or if the snapshot doesn't exist
-    // return '';
   }
 
   Future<List<String>> getFriendsFCMTokens(String userId) async {
@@ -94,7 +86,6 @@ class FirebaseHelper {
     return friendsTokens;
   }
 
-  // Assuming UserCredential is obtained after registration
   Future<void> storeUserData(String name, UserCredential user) async {
     try {
       final newUid = user.user!.uid;

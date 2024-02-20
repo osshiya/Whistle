@@ -35,7 +35,6 @@ class FirebaseHelper {
       }).toList();
 
       data.sort((a, b) {
-        // Parse timestamps, handling both int and String types
         int timestampA = a['timestamp'] is int
             ? a['timestamp']
             : int.tryParse(a['timestamp']) ?? 0;
@@ -43,16 +42,11 @@ class FirebaseHelper {
             ? b['timestamp']
             : int.tryParse(b['timestamp']) ?? 0;
 
-        // Compare timestamps and sort in descending order (latest first)
         return timestampB.compareTo(timestampA);
       });
 
-      // Return the combined data
-      return data;
-
       return data;
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
@@ -67,35 +61,28 @@ class FirebaseHelper {
 
       friends.add({'uid': uid});
 
-      print(friends[0]['uid']);
-      // Create an empty list to store combined data
       List<Map<String, dynamic>> combinedData = [];
 
       for (Map<String, dynamic> friend in friends) {
-        // Retrieve reports
         List<Map<String, dynamic>>? reports =
             await getStoredReports(friend['uid']);
         if (reports != null) {
           combinedData.addAll(reports);
         }
 
-        // Retrieve emergencies
         List<Map<String, dynamic>>? emergencies =
             await getStoredEmergencies(friend['uid']);
         if (emergencies != null) {
           combinedData.addAll(emergencies);
         }
 
-        // Retrieve buzz
         List<Map<String, dynamic>>? buzz = await getStoredBuzz(friend['uid']);
         if (buzz != null) {
           combinedData.addAll(buzz);
         }
       }
 
-// Sort the combined data by date
       combinedData.sort((a, b) {
-        // Parse timestamps, handling both int and String types
         int timestampA = a['timestamp'] is int
             ? a['timestamp']
             : int.tryParse(a['timestamp']) ?? 0;
@@ -103,14 +90,11 @@ class FirebaseHelper {
             ? b['timestamp']
             : int.tryParse(b['timestamp']) ?? 0;
 
-        // Compare timestamps and sort in descending order (latest first)
         return timestampB.compareTo(timestampA);
       });
 
-      // Return the combined data
       return combinedData;
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
@@ -122,41 +106,34 @@ class FirebaseHelper {
           await _firestore.collection('users/$uid/report').doc(id).get();
 
       if (docSnapshot.exists) {
-        // Check if the document exists
         Map<String, dynamic> data = docSnapshot.data()!;
-        // Add the document ID to the data
         data['id'] = id;
         return data;
       } else {
-        // Document with the given ID does not exist
         print('Document with ID $id does not exist');
         return null;
       }
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
   }
 
-  Future<Map<String, dynamic>?> getStoredEmergency(String uid, String id) async {
+  Future<Map<String, dynamic>?> getStoredEmergency(
+      String uid, String id) async {
     if (uid != null) {
       DocumentSnapshot<Map<String, dynamic>> docSnapshot =
           await _firestore.collection('users/$uid/emergency').doc(id).get();
 
       if (docSnapshot.exists) {
-        // Check if the document exists
         Map<String, dynamic> data = docSnapshot.data()!;
-        // Add the document ID to the data
         data['id'] = id;
         return data;
       } else {
-        // Document with the given ID does not exist
         print('Document with ID $id does not exist');
         return null;
       }
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
@@ -178,7 +155,6 @@ class FirebaseHelper {
       }).toList();
 
       data.sort((a, b) {
-        // Parse timestamps, handling both int and String types
         int timestampA = a['timestamp'] is int
             ? a['timestamp']
             : int.tryParse(a['timestamp']) ?? 0;
@@ -186,16 +162,11 @@ class FirebaseHelper {
             ? b['timestamp']
             : int.tryParse(b['timestamp']) ?? 0;
 
-        // Compare timestamps and sort in descending order (latest first)
         return timestampB.compareTo(timestampA);
       });
 
-      // Return the combined data
-      return data;
-
       return data;
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
@@ -218,7 +189,6 @@ class FirebaseHelper {
 
       return data;
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
@@ -241,7 +211,6 @@ class FirebaseHelper {
 
       return data;
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
@@ -275,7 +244,6 @@ class FirebaseHelper {
         print('Error updating data: $e');
       }
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
@@ -294,7 +262,6 @@ class FirebaseHelper {
         print('Error updating data: $e');
       }
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
@@ -309,7 +276,6 @@ class FirebaseHelper {
         print('Error updating data: $e');
       }
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }

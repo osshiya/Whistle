@@ -18,7 +18,6 @@ class RtdbHelper {
       await userRef.set(userData);
     } catch (error) {
       print('Error adding user with coordinates: $error');
-      // Handle the error as needed
     }
   }
 }
