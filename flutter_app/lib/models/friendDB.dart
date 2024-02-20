@@ -16,7 +16,9 @@ class FirebaseHelper {
       // Check if the query returned any documents
       if (querySnapshot.docs.isNotEmpty) {
         // Assuming that email is unique, so there should be only one result
+
         Map<String, dynamic>? data = querySnapshot.docs.first.data();
+
         return data;
       } else {
         // Handle the case where no user is found with the specified email
@@ -36,20 +38,28 @@ class FirebaseHelper {
       Map<String, dynamic>? userData = await getUserByEmail(email);
 
       if (userData != null && userData.containsKey('uid')) {
-        // Extract the current friends list from the user data
-        List<String> currentFriends =
-            List<String>.from(userData['friends'] ?? []);
+        Map<String, dynamic>? newFriendData = await getUserByEmail(newFriendEmail);
 
-        // Append the new friend email to the list
-        currentFriends.add(newFriendEmail);
+        if (newFriendData != null && newFriendData.containsKey('uid')) {
+            // Extract the current friends list from the user data
+          List<Map<String, dynamic>> currentFriends =
+          List<Map<String, dynamic>>.from(userData['friends'] ?? []);
 
-        // Update the 'friends' field in the user document based on email
-        await _firestore
-            .collection('users')
-            .doc(userData['uid'])
-            .update({'friends': currentFriends});
+          Map<String, String> newFriend = { 'uid': newFriendData['uid'], 'email': newFriendEmail };
 
-        print('Friend added successfully');
+          // Append the new friend email to the list
+          currentFriends.add(newFriend);
+
+          // Update the 'friends' field in the user document based on email
+          await _firestore
+              .collection('users')
+              .doc(userData['uid'])
+              .update({'friends': currentFriends});
+
+          print('Friend added successfully');
+        } else {
+          print('New friend not found with email: $newFriendEmail');
+        }
       } else {
         print('User not found with email: $email');
       }
@@ -59,7 +69,7 @@ class FirebaseHelper {
   }
 
   Future<void> updateFriendsList(
-      String email, List<String> updatedFriends) async {
+      String email, List<Map<String, dynamic>> updatedFriends) async {
     try {
       // Get the user data along with UID
       Map<String, dynamic>? userData = await getUserByEmail(email);
@@ -84,7 +94,7 @@ class FirebaseHelper {
     }
   }
 
-  Future<List<String>> getFriends(String uid) async {
+  Future<List<Map<String, dynamic>>> getFriends(String uid) async {
     try {
       // Fetch user document based on UID
       DocumentSnapshot userDoc =
@@ -93,7 +103,11 @@ class FirebaseHelper {
       // Check if user document exists
       if (userDoc.exists) {
         // Extract and return the friends list
-        List<String> friends = List<String>.from(userDoc['friends'] ?? []);
+        List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(userDoc['friends'] ?? []);
+
+        // // Extract email addresses from the list of friends
+        // List<String> friendEmails = friends.map<String>((friend) => friend['email'] as String).toList();
+
         return friends;
       } else {
         print('User not found with UID: $uid');
