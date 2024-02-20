@@ -12,7 +12,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
 import 'package:flutter_app/background_task.dart';
-import 'package:flutter_app/utils/notification_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +33,12 @@ Future<void> main() async {
     await firebaseMessaging.setAutoInitEnabled(true);
     // final fcmToken = await _firebaseMessaging.getToken();
     // print("FCMToken $fcmToken");
+    print('User granted permission');
+  } else if (notificationSettings.authorizationStatus ==
+      AuthorizationStatus.provisional) {
+    print('User granted provisional permission');
+  } else {
+    print('User declined or has not accepted permission');
   }
 
   [
@@ -44,18 +49,7 @@ Future<void> main() async {
     Permission.bluetoothScan,
     Permission.notification
   ].request().then((status) {
-    runApp(const MyApp());
-  });
-}
-
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+    runApp(MaterialApp(
       title: 'GDSC 2024',
       theme: ThemeData(
         // This is the theme of your application.
@@ -76,8 +70,59 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AuthenticationWrapper(),
+      home: const MyApp(),
+    ));
+  });
+}
+
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _MyApp();
+}
+
+class _MyApp extends State<MyApp> {
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ReportPage(id: message.data["id"])),
     );
+
+    // Navigator.pushNamed(context, "/report", arguments: {'id': message.data["id"]});
+    return;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Run code required to handle interacted messages in an async function
+    // as initState() must not be async
+    setupInteractedMessage();
+  }
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return AuthenticationWrapper();
   }
 }
 

@@ -1,6 +1,5 @@
 // home_screen.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'dart:math';
 
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
@@ -9,6 +8,7 @@ import 'package:flutter_app/models/rtDB.dart' as rtDB;
 
 import 'package:flutter_app/pages/services.dart';
 import 'package:flutter_app/pages/settings.dart';
+import 'package:flutter_app/utils/formatter.dart';
 
 class HomeScreen extends StatefulWidget {
   static const title = 'Home';
@@ -39,7 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _getCurrentCountry() async {
     try {
       String? currentCountry = await LocationService.getCurrentCountry();
-      if (mounted) { // Check if the widget is still mounted
+      if (mounted) {
+        // Check if the widget is still mounted
         setState(() {
           country = currentCountry;
         });
@@ -48,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Error getting current country: $e');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -286,16 +286,7 @@ class Lists extends StatelessWidget {
               timestamp = int.tryParse(data['timestamp']);
             }
 
-            DateTime? dateTime;
-            String? formattedTime = "";
-            if (timestamp != null) {
-              dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
-
-              // Format DateTime
-              formattedTime = dateTime != null
-                  ? DateFormat('MMM dd, hh:mm a').format(dateTime)
-                  : '';
-            }
+            String? formattedTime = formatTimestamp(timestamp!);
 
             return ListItemData(
               title: title,
