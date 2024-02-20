@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 
-import '../models/authDB.dart';
+import 'package:flutter_app/models/friendDB.dart' as FriendDB;
 
 class FriendsScreen extends StatefulWidget {
   static const title = 'Friends';
@@ -14,8 +14,8 @@ class FriendsScreen extends StatefulWidget {
 }
 
 class _FriendsScreenState extends State<FriendsScreen> {
-  late FirebaseHelper dbHelper;
   late AuthDB.FirebaseHelper dbAuthHelper;
+  late FriendDB.FirebaseHelper dbFriendHelper;
   TextEditingController searchController = TextEditingController();
   List<String>? friendsList = [];
 
@@ -23,7 +23,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
   void initState() {
     super.initState();
     dbAuthHelper = AuthDB.FirebaseHelper();
-    dbHelper = FirebaseHelper();
+    dbFriendHelper = FriendDB.FirebaseHelper();
+
     _loadFriends();
   }
 
@@ -31,7 +32,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
     String? uid = await dbAuthHelper.getStoredUid();
 
     if (uid != null) {
-      List<String> friends = await dbHelper.getFriends(uid);
+
+      List<String> friends = await dbFriendHelper.getFriends(uid);
       setState(() {
         friendsList = friends;
       });
@@ -44,12 +46,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
     // Implement your delete logic here
     // For example, dbHelper.deleteFriend(friendEmail);
     String? myEmail = await dbAuthHelper.getStoredEmail();
-    Map<String, dynamic>? friendData = await dbHelper.getUserByEmail(friendEmail);
+
+    Map<String, dynamic>? friendData = await dbFriendHelper.getUserByEmail(friendEmail);
     if (friendData != null && friendData.isNotEmpty) {
       // Extract the 'friends' array from friendData
       List<String> friendsList2 = List<String>.from(friendData['friends'] ?? []);
       friendsList2!.remove(myEmail);
-      await dbHelper.updateFriendsList(friendEmail, friendsList2!);
+
+      await dbFriendHelper.updateFriendsList(friendEmail, friendsList2!);
       // Now you can use the friendsList
       print("Friends List: $friendsList");
     } else {
@@ -57,7 +61,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
       print("No user found with email: $friendEmail");
     }
     friendsList!.remove(friendEmail);
-    await dbHelper.updateFriendsList(myEmail, friendsList!);
+    await dbFriendHelper.updateFriendsList(myEmail, friendsList!);
+
     // Update the UI after deletion
     await _loadFriends();
   }
@@ -99,11 +104,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         if (friendEmail.isNotEmpty) {
                           try {
                             String? email = userData;
-                            Map<String, dynamic>? friendData = await dbHelper.getUserByEmail(friendEmail);
+                            Map<String, dynamic>? friendData = await dbFriendHelper.getUserByEmail(friendEmail);
 
                             if (friendData != null && friendData.isNotEmpty) {
-                              await dbHelper.addFriendByEmail(email!, friendEmail);
-                              await dbHelper.addFriendByEmail(friendEmail, email);
+                              await dbFriendHelper.addFriendByEmail(email!, friendEmail);
+                              await dbFriendHelper.addFriendByEmail(friendEmail, email);
                               await _loadFriends();
                             } else {
                               // No user found with the specified email

@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app/firebase_options.dart';
+
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -25,6 +26,8 @@ void backGroundTask(RootIsolateToken rootIsolateToken) async {
     exact: true, // Ensure precise timing
     wakeup: true);
 }
+
+import 'background_task.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
