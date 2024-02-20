@@ -20,16 +20,10 @@ void backGroundTask(RootIsolateToken rootIsolateToken) async {
   // Initialize Firebase in the background isolate
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Now, spawn another isolate for periodic tasks
-  AndroidAlarmManager.periodic(const Duration(minutes: 15), 0, () async {
-    // Perform periodic task
-    await updateIsolateAndSchedule();
-  },
+  // Now, spawn another isolate for periodic tasks
+  AndroidAlarmManager.periodic(const Duration(minutes: 15), 0, bg.BackgroundTask.updateCoordinatesIsolate,
     exact: true, // Ensure precise timing
     wakeup: true);
-}
-
-Future<void> updateIsolateAndSchedule() async {
-  await bg.BackgroundTask.updateCoordinatesIsolate();
 }
 
 Future<void> main() async {
