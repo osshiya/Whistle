@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
 class FirebaseHelper {
   Future<String> getStoredUid() async {
@@ -19,7 +21,7 @@ class FirebaseHelper {
 
   Future<String> getStoredEmail() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedEmail= prefs.getString('email');
+    String? storedEmail = prefs.getString('email');
 
     if (storedEmail != null) {
       print('email: $storedEmail');
@@ -63,7 +65,6 @@ class FirebaseHelper {
         print('Snapshot is null or empty');
         return null;
       }
-
     } else {
       // Handle the case where uid is null or empty
       print('UID is null or empty');
@@ -71,6 +72,26 @@ class FirebaseHelper {
     }
     // Return an empty string if the username is not found or if the snapshot doesn't exist
     // return '';
+  }
+
+  Future<List<String>> getFriendsFCMTokens(String userId) async {
+    String uid = await getStoredUid();
+    List<String> friendsTokens = [];
+    if (uid != null) {
+      DocumentSnapshot userSnapshot =
+          await _firestore.collection('users').doc(userId).get();
+      Map<String, dynamic>? userData =
+          userSnapshot.data() as Map<String, dynamic>?;
+      if (userData != null) {
+        List<dynamic>? friends = userData["friends"] as List<dynamic>?;
+        for (String friend in friends!) {
+          // getUid
+          // friendsTokens
+          //     .add(friend); // Assuming each friend is stored as an FCM token
+        }
+      }
+    }
+    return friendsTokens;
   }
 
   // Assuming UserCredential is obtained after registration
@@ -85,6 +106,19 @@ class FirebaseHelper {
           .set({'name': name, 'uid': newUid, 'email': newEmail, 'friends': []});
     } catch (e) {
       print('Error storing user data: $e');
+    }
+  }
+
+  Future<void> saveFCMToken() async {
+    String uid = await getStoredUid();
+    if (uid != null) {
+      String? fcmToken = await _firebaseMessaging.getToken();
+      if (fcmToken != null) {
+        await _firestore
+            .collection('users')
+            .doc(uid)
+            .update({'fcmToken': fcmToken});
+      }
     }
   }
 }
