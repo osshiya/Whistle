@@ -101,11 +101,14 @@ class _MyApp extends State<MyApp> {
   }
 
   void _handleMessage(RemoteMessage message) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ReportPage(id: message.data["id"])),
-    );
-
+    if (message.data["type"] == "Report") {
+      print("HANDLED");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReportPage(id: message.data["id"])),
+      );
+    }
     // Navigator.pushNamed(context, "/report", arguments: {'id': message.data["id"]});
     return;
   }

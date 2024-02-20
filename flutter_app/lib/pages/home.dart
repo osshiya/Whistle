@@ -66,54 +66,17 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            IconButton(
-              icon: SettingsPage.androidIcon,
-              tooltip: SettingsPage.title,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsPage()),
-                );
-              },
-            ),
           ],
         );
         break;
       case 1:
         appBar = AppBar(
           title: const Text(FriendsScreen.title),
-          actions: <Widget>[
-            IconButton(
-              icon: FriendsScreen.androidIcon,
-              tooltip: FriendsScreen.title,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const FriendsScreen()),
-                );
-              },
-            ),
-          ],
         );
         break;
       case 2:
         appBar = AppBar(
           title: const Text(MapScreen.title),
-          actions: <Widget>[
-            IconButton(
-              icon: MapScreen.androidIcon,
-              tooltip: MapScreen.title,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const MapScreen()),
-                );
-              },
-            ),
-          ],
         );
         break;
       case 3:
@@ -177,6 +140,8 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF2F7BEE),
         onTap: _onItemTapped,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
       ),
     );
   }

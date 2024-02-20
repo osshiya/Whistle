@@ -16,19 +16,19 @@ import 'package:flutter_app/utils/formatter.dart';
 
 import 'package:flutter_app/utils/notification_handler.dart';
 
-class ReportPage extends StatefulWidget {
-  static const title = 'View Report';
-  static const androidIcon = Icon(Icons.edit);
+class EmergencyPage extends StatefulWidget {
+  static const title = 'View Emergency';
+  static const androidIcon = Icon(Icons.emergency);
 
-  const ReportPage({super.key, required this.id});
+  const EmergencyPage({super.key, required this.id});
 
   final String id;
 
   @override
-  State<ReportPage> createState() => _ReportPageState();
+  State<EmergencyPage> createState() => _EmergencyPageState();
 }
 
-class _ReportPageState extends State<ReportPage> {
+class _EmergencyPageState extends State<EmergencyPage> {
   late BleDB.FirebaseHelper dbBleHelper;
   Map<String, dynamic>? _data;
 
