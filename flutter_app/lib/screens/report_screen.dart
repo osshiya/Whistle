@@ -8,11 +8,10 @@ import 'package:intl/intl.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
-// import 'package:flutter_app/features/tasks_history.dart';
-
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/pages/report.dart';
+import 'package:flutter_app/utils/formatter.dart';
 
 class ReportScreen extends StatefulWidget {
   static const title = 'Reports';
@@ -45,16 +44,36 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 }
 
-class Lists extends StatelessWidget {
+class Lists extends StatefulWidget {
   final BleDB.FirebaseHelper dbBleHelper;
 
   const Lists({super.key, required this.dbBleHelper});
 
   @override
+  State<Lists> createState() => _ListsState();
+}
+
+class _ListsState extends State<Lists> {
+  late BleDB.FirebaseHelper dbBleHelper;
+  late Future<List<Map<String, dynamic>>?> _futureData;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshList();
+  }
+
+  Future<void> _refreshList() async {
+    setState(() {
+      _futureData = widget.dbBleHelper.getStoredReports();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Expanded(
       child: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: dbBleHelper.getStoredReports(),
+        future: _futureData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -64,7 +83,7 @@ class Lists extends StatelessWidget {
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           }
-          if (!snapshot.hasData) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Text('No data available');
           }
           List<ListItemData> items = snapshot.data!.map((data) {
@@ -74,26 +93,12 @@ class Lists extends StatelessWidget {
             int timestamp = data?['timestamp'] ?? '';
             String id = data['id'] ?? '';
 
-            DateTime? dateTime;
-            String? formattedTime = "";
-            if (timestamp != null) {
-              dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
-
-              // Format DateTime
-              formattedTime = dateTime != null
-                  ? DateFormat('MMM dd, hh:mm a').format(dateTime)
-                  : '';
-              print(formattedTime);
-            }
+            String formattedTime = formatTimestamp(timestamp);
 
             return ListItemData(
-              title: title,
-              subtitle: subtitle,
-              time: formattedTime,
-              id: id
-            );
+                title: title, subtitle: subtitle, time: formattedTime, id: id);
           }).toList();
-          return ListSection(items: items);
+          return ListSection(items: items, refreshCallback: _refreshList);
         },
       ),
     );
@@ -104,57 +109,64 @@ class ListSection extends StatefulWidget {
   const ListSection({
     Key? key,
     required this.items,
+    required this.refreshCallback,
   }) : super(key: key);
 
   final List<ListItemData> items;
+  final VoidCallback refreshCallback;
+
   @override
   State<ListSection> createState() => _ListSectionState();
 }
 
 class _ListSectionState extends State<ListSection> {
-  void _navigateToListView(String id) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ReportPage(id: id)),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: widget.items.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  widget.items[index].title,
-                  overflow: TextOverflow.ellipsis,
+    return
+      // RefreshIndicator(
+      // onRefresh: _refreshList,
+      // child:
+      ListView.builder(
+        itemCount: widget.items.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.items[index].title,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              Text(
-                widget.items[index].time,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey, // Adjust color as needed
+                Text(
+                  widget.items[index].time,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey, // Adjust color as needed
+                  ),
                 ),
-              ),
-            ],
-          ),
-          subtitle: Text(
-            widget.items[index].subtitle,
-            textAlign: TextAlign.left,
-            style: const TextStyle(
-              color: Colors.grey, // Adjust color as needed
+              ],
             ),
-          ),
-          onTap: () {
-            _navigateToListView(widget.items[index].id);
-          }, // Handle your onTap here.
-        );
-      },
+            subtitle: Text(
+              widget.items[index].subtitle,
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                color: Colors.grey, // Adjust color as needed
+              ),
+            ),
+            onTap: () {
+             Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReportPage(id: widget.items[index].id)),
+              ).then((_) {
+               widget.refreshCallback();
+              });
+            }, // Handle your onTap here.
+          );
+        },
+      // ),
     );
   }
 }
@@ -166,5 +178,8 @@ class ListItemData {
   final String id;
 
   ListItemData(
-      {required this.title, required this.subtitle, required this.time, required this.id});
+      {required this.title,
+      required this.subtitle,
+      required this.time,
+      required this.id});
 }
