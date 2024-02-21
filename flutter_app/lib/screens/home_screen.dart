@@ -7,7 +7,6 @@ import 'package:flutter_app/pages/emergency.dart';
 import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/pages/services.dart';
 import 'package:flutter_app/utils/formatter.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 class HomeScreen extends StatefulWidget {
   static const title = 'Home';

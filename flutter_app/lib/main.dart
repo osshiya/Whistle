@@ -6,7 +6,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:workmanager/workmanager.dart';
 import 'package:flutter_app/firebase_options.dart';
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
@@ -16,7 +15,7 @@ import 'package:flutter_app/BackgroundTask.dart' as bg;
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 void backGroundTask(RootIsolateToken rootIsolateToken) async {
-  BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken!);
+  BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
   // Initialize Firebase in the background isolate
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Now, spawn another isolate for periodic tasks

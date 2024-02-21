@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:label="flutter_app">
+
         <service
             android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
             android:exported="false"
@@ -12,6 +12,7 @@
         <receiver
             android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
             android:exported="false" />
+
         <receiver
             android:name="dev.fluttercommunity.plus.androidalarmmanager.RebootBroadcastReceiver"
             android:enabled="false"
