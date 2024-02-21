@@ -1,10 +1,8 @@
 // home_screen.dart
 import 'package:flutter/material.dart';
-
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/models/rtDB.dart' as rtDB;
-
 import 'package:flutter_app/pages/emergency.dart';
 import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/pages/services.dart';
@@ -41,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       String? currentCountry = await LocationService.getCurrentCountry();
       if (mounted) {
-        // Check if the widget is still mounted
         setState(() {
           country = currentCountry;
         });
@@ -55,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0),
-      // Adjust the value as needed
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,14 +85,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: name,
                         country: country ?? 'Loading...',
                       );
-                      // }
                     }
                   },
                 );
               }
             },
           ),
-          // const ButtonSection(),
           const ActivitySection(name: "Recent Activity"),
           Lists(dbBleHelper: dbBleHelper),
         ],
@@ -133,7 +127,7 @@ class TitleSection extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: 16), // Adjust spacing as needed
+          SizedBox(width: 16),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,18 +196,9 @@ class ActivitySection extends StatefulWidget {
 }
 
 class _ActivitySectionState extends State<ActivitySection> {
-// Navigate to Activity History Page
-  void _navigateToActivityHistory() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SettingsPage()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Text(
-      // onPressed: _navigateToActivityHistory,
       widget.name,
       style: const TextStyle(
         fontSize: 24,
@@ -246,7 +231,6 @@ class Lists extends StatelessWidget {
             return const Text('No data available');
           }
           List<ListItemData> items = snapshot.data!.map((data) {
-            // Assuming your Firebase document fields are 'title', 'subtitle', and 'time'
             String title = data['type'] ?? '';
             String uid = data['user'] ?? '';
             int? timestamp;
@@ -259,12 +243,11 @@ class Lists extends StatelessWidget {
             String? formattedTime = formatTimestamp(timestamp!);
 
             return ListItemData(
-              id: data['id'],
-              uid: uid,
-              title: title,
-              time: formattedTime,
-              type: data['type']
-            );
+                id: data['id'],
+                uid: uid,
+                title: title,
+                time: formattedTime,
+                type: data['type']);
           }).toList();
           return ListSection(items: items);
         },
@@ -300,7 +283,7 @@ class ListSection extends StatelessWidget {
                 items[index].time,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: Colors.grey, // Adjust color as needed
+                  color: Colors.grey,
                 ),
               ),
             ],
@@ -309,24 +292,26 @@ class ListSection extends StatelessWidget {
             items[index].uid,
             textAlign: TextAlign.left,
             style: const TextStyle(
-              color: Colors.grey, // Adjust color as needed
+              color: Colors.grey,
             ),
           ),
           onTap: () {
-            if(items[index].type == "Report") {
+            if (items[index].type == "Report") {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ViewReportPage(id: items[index].id, uid: items[index].uid,)),
-              ).then((_) {
-                // widget.refreshCallback();
-              });
+                MaterialPageRoute(
+                    builder: (context) => ViewReportPage(
+                          id: items[index].id,
+                          uid: items[index].uid,
+                        )),
+              ).then((_) {});
             } else if (items[index].type == "Emergency") {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EmergencyPage(id: items[index].id, uid: items[index].uid)),
-              ).then((_) {
-                // widget.refreshCallback();
-              });
+                MaterialPageRoute(
+                    builder: (context) => EmergencyPage(
+                        id: items[index].id, uid: items[index].uid)),
+              ).then((_) {});
             }
           },
         );
@@ -343,5 +328,9 @@ class ListItemData {
   final String type;
 
   ListItemData(
-      {required this.id, required this.uid, required this.title, required this.time, required this.type});
+      {required this.id,
+      required this.uid,
+      required this.title,
+      required this.time,
+      required this.type});
 }
