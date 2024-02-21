@@ -150,7 +150,7 @@ class _ListsState extends State<Lists> {
               return Text('Error: ${snapshot.error}');
             }
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Text('No data available');
+              return const Center( child: Text('No data available'));
             }
             List<ListItemData> items = snapshot.data!.map((data) {
               String id = data['id'] ?? '';
