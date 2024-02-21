@@ -96,7 +96,6 @@ class FirebaseHelper {
       if (userDoc.exists) {
         List<Map<String, dynamic>> friends =
             List<Map<String, dynamic>>.from(userDoc['friends'] ?? []);
-
         // // Extract email addresses from the list of friends
         // List<String> friendEmails = friends.map<String>((friend) => friend['email'] as String).toList();
 
