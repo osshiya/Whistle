@@ -79,7 +79,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             child: TextField(
                               controller: searchController,
                               decoration: InputDecoration(
-                                hintText: "Search Friend by Email",
+                                hintText: "Add Friend by Email",
                               ),
                             ),
                           ),

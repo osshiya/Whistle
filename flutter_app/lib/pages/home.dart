@@ -4,7 +4,6 @@ import 'package:flutter_app/screens/home_screen.dart';
 import 'package:flutter_app/screens/map_screen.dart';
 import 'package:flutter_app/screens/report_screen.dart';
 import 'package:flutter_app/screens/friends_screen.dart';
-import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/pages/bluetooth.dart';
 import 'package:flutter_app/pages/settings.dart';
 

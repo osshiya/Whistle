@@ -1,3 +1,4 @@
+// This portion of code is adapted from: https://github.com/boskokg/flutter_blue_plus
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
