@@ -25,25 +25,16 @@ class BackgroundTask {
         // Initialize Firebase in the background task
         AuthDB.FirebaseHelper dbAuthHelper = AuthDB.FirebaseHelper();
         rtDB.RtdbHelper rtdbHelper = rtDB.RtdbHelper();
-
-        log("Update!1");
-
         // Check if location services are enabled
         bool isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!isLocationServiceEnabled) {
           log('Location services are not enabled');
           return;
         }
-
-        log("Update!2");
-
         // Get the current position
         Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
         );
-
-        log("Update!3");
-
         if (position != null) {
           String? uid = await dbAuthHelper.getStoredUid();
           await rtdbHelper.addUserWithCoordinates(uid, position.latitude, position.longitude);
@@ -54,8 +45,6 @@ class BackgroundTask {
       } catch (e) {
         log('Error updating user coordinates: $e');
       }
-
-      log("Update!4");
     }
 
 
