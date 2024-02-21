@@ -73,8 +73,9 @@ class FirebaseHelper {
 
   Future<void> updateFriendsList(String email, List<String> updatedFriends) async {
     try {
+      late Friend.FirebaseHelper dbFriendHelper = Friend.FirebaseHelper();
       // Get the user data along with UID
-      Map<String, dynamic>? userData = await getUserByEmail(email);
+      Map<String, dynamic>? userData = await dbFriendHelper.getUserByEmail(email);
 
       if (userData != null) {
         // Extract UID from user data

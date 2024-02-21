@@ -47,7 +47,6 @@ dependencies:
   geolocator: ^11.0.0
   geocoding: ^2.1.1
   workmanager: ^0.5.2
-  permission_handler: ^11.2.1
   url_launcher: ^6.2.4
 
   # The following adds the Cupertino Icons font to your application.
