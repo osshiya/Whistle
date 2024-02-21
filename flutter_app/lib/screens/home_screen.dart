@@ -31,21 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     rtdbHelper = rtDB.RtdbHelper();
     dbAuthHelper = AuthDB.FirebaseHelper();
     dbBleHelper = BleDB.FirebaseHelper();
-    _getCurrentCountry();
     dbAuthHelper.saveFCMToken();
-  }
-
-  Future<void> _getCurrentCountry() async {
-    try {
-      String? currentCountry = await LocationService.getCurrentCountry();
-      if (mounted) {
-        setState(() {
-          country = currentCountry;
-        });
-      }
-    } catch (e) {
-      print('Error getting current country: $e');
-    }
   }
 
   @override
@@ -83,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       return TitleSection(
                         name: name,
-                        country: country ?? 'Loading...',
                       );
                     }
                   },
@@ -99,55 +84,88 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class TitleSection extends StatelessWidget {
+class TitleSection extends StatefulWidget {
   const TitleSection({
-    super.key,
+    Key? key,
     required this.name,
-    required this.country,
-  });
+  }) : super(key: key);
 
   final String name;
-  final String country;
+
+  @override
+  State<TitleSection> createState() => _TitleSectionState();
+}
+
+class _TitleSectionState extends State<TitleSection> {
+  late Future<String?> currentCountryFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    currentCountryFuture = getCurrentCountry();
+  }
+
+  Future<String?> getCurrentCountry() async {
+    try {
+      String? currentCountry = await LocationService.getCurrentCountry();
+      return currentCountry;
+    } catch (e) {
+      print('Error getting current country: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 80.0 / 2,
-            backgroundColor: randomColor(),
-            child: Text(
-              getInitials(name),
-              style: const TextStyle(
-                fontSize: 80.0 * 0.4,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          SizedBox(width: 16),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                pascalCase(name),
-                style: const TextStyle(
-                  fontSize: 80.0 * 0.3,
-                  fontWeight: FontWeight.bold,
+    return FutureBuilder<String?>(
+      future: currentCountryFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          String? currentCountry = snapshot.data;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 80.0 / 2,
+                  backgroundColor: randomColor(),
+                  child: Text(
+                    getInitials(widget.name),
+                    style: const TextStyle(
+                      fontSize: 80.0 * 0.4,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
-              ButtonWithText(
-                color: Color(0xFF838C98),
-                icon: Icons.location_on,
-                label: country,
-              ),
-            ],
-          )
-        ],
-      ),
+                SizedBox(width: 16),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      pascalCase(widget.name),
+                      style: const TextStyle(
+                        fontSize: 80.0 * 0.3,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    ButtonWithText(
+                      color: Color(0xFF838C98),
+                      icon: Icons.location_on,
+                      label: currentCountry ?? 'Unknown',
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        }
+      },
     );
   }
 }

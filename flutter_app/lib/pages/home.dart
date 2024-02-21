@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                     context,
                     MaterialPageRoute<void>(
                       builder: (BuildContext context) => const HomePage(
-                        selectedIndex: 3,
+                        selectedIndex: 0,
                       ),
                     ),
                     (route) => false,
