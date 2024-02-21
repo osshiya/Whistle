@@ -45,11 +45,6 @@ Future<void> sendPushMessage(
 
   String senderId = "962935829636";
 
-  if (token == null) {
-    print('Unable to send FCM message, no token exists.');
-    return;
-  }
-
   try {
     final response = await client.post(
       Uri.parse(

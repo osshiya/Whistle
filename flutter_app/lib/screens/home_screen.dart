@@ -6,7 +6,6 @@ import 'package:flutter_app/models/rtDB.dart' as rtDB;
 import 'package:flutter_app/pages/emergency.dart';
 import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/pages/services.dart';
-import 'package:flutter_app/pages/settings.dart';
 import 'package:flutter_app/utils/formatter.dart';
 
 class HomeScreen extends StatefulWidget {

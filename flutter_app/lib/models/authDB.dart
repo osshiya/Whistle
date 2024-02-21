@@ -72,7 +72,7 @@ class FirebaseHelper {
   }
 
   Future<Map<String, dynamic>?> getUserData(String uid) async {
-    if (uid != null && uid.isNotEmpty) {
+    if (uid.isNotEmpty) {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
           await _firestore.collection('users').doc(uid).get();
 
@@ -93,37 +93,32 @@ class FirebaseHelper {
   Future<List<String>> getFriendsFCMTokens() async {
     String uid = await getStoredUid();
 
-    if (uid != null) {
-      List<Map<String, dynamic>> friends =
-          await Friend.FirebaseHelper().getFriends(uid);
+    List<Map<String, dynamic>> friends =
+        await Friend.FirebaseHelper().getFriends(uid);
 
-      List<String> fcms = [];
+    List<String> fcms = [];
 
-      for (var friend in friends) {
-        DocumentSnapshot<Map<String, dynamic>> snapshot =
-            await _firestore.collection('users').doc(friend['uid']).get();
+    for (var friend in friends) {
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('users').doc(friend['uid']).get();
 
-        if (snapshot.exists) {
-          Map<String, dynamic>? data = snapshot.data();
+      if (snapshot.exists) {
+        Map<String, dynamic>? data = snapshot.data();
 
-          if (data != null && data.containsKey('fcmToken')) {
-            fcms.add(data['fcmToken'].toString());
-          } else {
-            // Add an empty string if not found
-            print('fcmToken not found');
-            fcms.add('');
-          }
+        if (data != null && data.containsKey('fcmToken')) {
+          fcms.add(data['fcmToken'].toString());
         } else {
-          print('Snapshot does not exist');
+          // Add an empty string if not found
+          print('fcmToken not found');
           fcms.add('');
         }
+      } else {
+        print('Snapshot does not exist');
+        fcms.add('');
       }
-
-      return fcms;
-    } else {
-      print('UID is null or empty');
-      return [];
     }
+
+    return fcms;
   }
 
   Future<void> storeUserData(String name, UserCredential user) async {
@@ -142,24 +137,20 @@ class FirebaseHelper {
 
   Future<void> saveFCMToken() async {
     String uid = await getStoredUid();
-    if (uid != null) {
-      String? fcmToken = await _firebaseMessaging.getToken();
-      if (fcmToken != null) {
-        await _firestore
-            .collection('users')
-            .doc(uid)
-            .update({'fcmToken': fcmToken});
-      }
+    String? fcmToken = await _firebaseMessaging.getToken();
+    if (fcmToken != null) {
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .update({'fcmToken': fcmToken});
     }
   }
 
   Future<void> updateUserData(newName, newEmergencyNumber) async {
     String uid = await getStoredUid();
-    if (uid != null) {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .update({'name': newName, 'emergencyNumber': newEmergencyNumber});
-    }
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .update({'name': newName, 'emergencyNumber': newEmergencyNumber});
   }
 }

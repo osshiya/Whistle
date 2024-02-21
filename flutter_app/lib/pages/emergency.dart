@@ -95,7 +95,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
             if (_data != null) ...[
               MessageSection(
                 title: _data?['title'] ?? _data?['type'] ?? '',
-                subtitle: username ?? '',
+                subtitle: username,
                 timestamp: formatTimestamp(_data?['timestamp'] ?? ''),
               ),
             ],

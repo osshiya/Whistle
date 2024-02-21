@@ -29,14 +29,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Future<void> _loadFriends() async {
     String? uid = await dbAuthHelper.getStoredUid();
 
-    if (uid != null) {
-      List<Map<String, dynamic>> friends = await dbFriendHelper.getFriends(uid);
-      setState(() {
-        friendsList = friends;
-      });
-    } else {
-      print('Error: User email is null');
-    }
+    List<Map<String, dynamic>> friends = await dbFriendHelper.getFriends(uid);
+    setState(() {
+      friendsList = friends;
+    });
   }
 
   Future<void> _deleteFriend(String friendEmail) async {

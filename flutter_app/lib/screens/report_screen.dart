@@ -79,9 +79,9 @@ class _ListsState extends State<Lists> {
           List<ListItemData> items = snapshot.data!.map((data) {
             String id = data['id'] ?? '';
             String uid = data['user'] ?? '';
-            String title = data?['title'] ?? data?['type'] ?? '';
-            String subtitle = data?['desc'] ?? '';
-            int timestamp = data?['timestamp'] ?? '';
+            String title = data['title'] ?? data['type'] ?? '';
+            String subtitle = data['desc'] ?? '';
+            int timestamp = data['timestamp'] ?? '';
 
             String formattedTime = formatTimestamp(timestamp);
 
