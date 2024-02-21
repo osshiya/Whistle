@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
-import 'dart:io';
 import 'dart:async';
 import 'dart:math';
-
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_app/utils/snackbar.dart';
-
-import 'package:flutter_app/screens/bluetooth_off_screen.dart';
-import 'package:flutter_app/utils/bluetooth_on_screen.dart';
 
 class DeviceScreen extends StatefulWidget {
   final BluetoothDevice device;

@@ -1,7 +1,6 @@
 import 'dart:ui';
-
-import 'package:intl/intl.dart';
 import 'dart:math';
+import 'package:intl/intl.dart';
 
 String formatTimestamp(int timestamp) {
   if (timestamp != null) {
@@ -27,8 +26,7 @@ String pascalCase(String name) {
   List<String> words = name.split(' ');
   String camelCaseString = '';
   for (int i = 0; i < words.length; i++) {
-    camelCaseString +=
-    '${words[i][0].toUpperCase()}${words[i].substring(1)} ';
+    camelCaseString += '${words[i][0].toUpperCase()}${words[i].substring(1)} ';
   }
   return camelCaseString;
 }

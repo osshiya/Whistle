@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:flutter/services.dart';
+import 'package:googleapis_auth/auth_io.dart' as auth;
 
-/// The API endpoint here accepts a raw FCM payload for demonstration purposes.
+/// The API endpoint here accepts a raw FCM payload.
 String constructFCMPayload(String? token, String type) {
   type = type[0].toUpperCase() + type.substring(1);
   String title;
@@ -25,21 +25,16 @@ String constructFCMPayload(String? token, String type) {
         'title': title,
         'body': body,
       },
-      'data': {
-        'type': type,
-        'id': "2nWd2YJjRnpiV58djvBz"
-      }
+      'data': {'type': type, 'id': "2nWd2YJjRnpiV58djvBz"}
     },
   };
 
-  return jsonEncode(
-    notificationData
-  );
+  return jsonEncode(notificationData);
 }
 
 Future<void> sendPushMessage(String uid, String type) async {
-  final jsonCredentials = await rootBundle
-      .loadString('assets/gdsc-2024-7d8314390899.json');
+  final jsonCredentials =
+      await rootBundle.loadString('assets/gdsc-2024-7d8314390899.json');
   final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
 
   final client = await auth.clientViaServiceAccount(
@@ -49,34 +44,30 @@ Future<void> sendPushMessage(String uid, String type) async {
 
   String senderId = "962935829636";
 
-  // print(accessToken);
-  // if (accessToken != null) {
-    String token =
-        "d7chJKo8S3eVXktEoTR5sV:APA91bElZdLzWpl8vZAVKnan1p7m1-rfjdDmZpPRw1shM25IjAz2CV7jXWpTVci-sYsM5crEXSCNxyHQJHEsXfF0xFbcZptBeNNTr7V0M9z-xCbhR-7bpExJoPbIoHlqa3E7b7Xq-AzB";
-    if (token == null) {
-      print('Unable to send FCM message, no token exists.');
-      return;
-    }
+  String token =
+      "d7chJKo8S3eVXktEoTR5sV:APA91bElZdLzWpl8vZAVKnan1p7m1-rfjdDmZpPRw1shM25IjAz2CV7jXWpTVci-sYsM5crEXSCNxyHQJHEsXfF0xFbcZptBeNNTr7V0M9z-xCbhR-7bpExJoPbIoHlqa3E7b7Xq-AzB";
+  if (token == null) {
+    print('Unable to send FCM message, no token exists.');
+    return;
+  }
 
-    try {
-      final response = await client.post(
-        Uri.parse('https://fcm.googleapis.com/v1/projects/$senderId/messages:send'),
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: constructFCMPayload(token, type),
-      );
+  try {
+    final response = await client.post(
+      Uri.parse(
+          'https://fcm.googleapis.com/v1/projects/$senderId/messages:send'),
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: constructFCMPayload(token, type),
+    );
 
-      if (response.statusCode == 200) {
-        print('FCM request for device sent!');
-      } else {
-        print('Failed to send FCM request: ${response.statusCode}');
-        print('Failed to send FCM request body: ${response.body}');
-      }
-    } catch (e) {
-      print('Error sending FCM request: $e');
+    if (response.statusCode == 200) {
+      print('FCM request for device sent!');
+    } else {
+      print('Failed to send FCM request: ${response.statusCode}');
+      print('Failed to send FCM request body: ${response.body}');
     }
-  // } else {
-  //   print("No OAuth Token");
-  // }
+  } catch (e) {
+    print('Error sending FCM request: $e');
+  }
 }
