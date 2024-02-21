@@ -1,21 +1,25 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
+import 'package:flutter_app/models/authDB.dart' as AuthDB;
 
 /// The API endpoint here accepts a raw FCM payload.
-String constructFCMPayload(String? token, String uid, String id, String type) {
+Future<String> constructFCMPayload(
+    String? token, String uid, String id, String type) async {
   type = type[0].toUpperCase() + type.substring(1);
   String title;
   String body;
+  String name = await AuthDB.FirebaseHelper().getUsername(uid);
+
   if (type == "Emergency") {
-    title = type;
-    body = "You have a $type";
+    title = "Emergency Activated";
+    body = "$name has activated an emergency alert.";
   } else if (type == "Buzz") {
-    title = type;
-    body = type;
+    title = "Buzz Alert";
+    body = "$name has triggered the alarm.";
   } else {
-    title = type;
-    body = "You have received a $type";
+    title = "Notification";
+    body = "You have received a $type notification.";
   }
 
   final notificationData = {
@@ -28,7 +32,7 @@ String constructFCMPayload(String? token, String uid, String id, String type) {
       'data': {'type': type, 'id': id, 'uid': uid}
     },
   };
-
+  print(notificationData);
   return jsonEncode(notificationData);
 }
 
@@ -52,7 +56,7 @@ Future<void> sendPushMessage(
       headers: {
         'content-type': 'application/json',
       },
-      body: constructFCMPayload(token, uid, id, type),
+      body: await constructFCMPayload(token, uid, id, type),
     );
 
     if (response.statusCode == 200) {
