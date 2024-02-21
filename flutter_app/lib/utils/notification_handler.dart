@@ -17,6 +17,9 @@ Future<String> constructFCMPayload(
   } else if (type == "Buzz") {
     title = "Buzz Alert";
     body = "$name has triggered the alarm.";
+  } else if (type == "Report"){
+    title = "Report";
+    body = "$name has made a report.";
   } else {
     title = "Notification";
     body = "You have received a $type notification.";
@@ -32,7 +35,6 @@ Future<String> constructFCMPayload(
       'data': {'type': type, 'id': id, 'uid': uid}
     },
   };
-  print(notificationData);
   return jsonEncode(notificationData);
 }
 
