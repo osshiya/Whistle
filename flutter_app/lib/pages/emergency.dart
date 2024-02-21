@@ -1,5 +1,7 @@
 // emergency.dart
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/utils/formatter.dart';
 
@@ -17,14 +19,27 @@ class EmergencyPage extends StatefulWidget {
 }
 
 class _EmergencyPageState extends State<EmergencyPage> {
+  late AuthDB.FirebaseHelper dbAuthHelper;
   late BleDB.FirebaseHelper dbBleHelper;
   Map<String, dynamic>? _data;
+  late String username;
 
   @override
   void initState() {
     super.initState();
+    dbAuthHelper = AuthDB.FirebaseHelper();
     dbBleHelper = BleDB.FirebaseHelper();
     _retrieveData();
+  }
+
+  void _makePhoneCall(String fid) async {
+    String phoneNumber = await dbAuthHelper.getEmergencyNumber(fid);
+    String telScheme = 'tel:$phoneNumber';
+    try {
+      await launchUrl(Uri.parse(telScheme));
+    } catch (e) {
+      throw 'Could not launch $telScheme';
+    }
   }
 
   @override
@@ -40,7 +55,9 @@ class _EmergencyPageState extends State<EmergencyPage> {
           IconButton(
               icon: Icon(Icons.call),
               tooltip: "Call Emergency",
-              onPressed: () async {}),
+              onPressed: () async {
+                _makePhoneCall(widget.uid);
+              }),
         ],
       ),
       body: Padding(
@@ -74,13 +91,11 @@ class _EmergencyPageState extends State<EmergencyPage> {
                     fontWeight: FontWeight.w500,
                     fontSize: 180.0 * 0.4,
                     color: Colors.white)),
-            if (_data == null) // Show loading indicator if data is null
-              Center(child: CircularProgressIndicator()),
+            if (_data == null) Center(child: CircularProgressIndicator()),
             if (_data != null) ...[
-              // Show data if available
               MessageSection(
                 title: _data?['title'] ?? _data?['type'] ?? '',
-                subtitle: _data?['user'] ?? '',
+                subtitle: username ?? '',
                 timestamp: formatTimestamp(_data?['timestamp'] ?? ''),
               ),
             ],
@@ -95,11 +110,13 @@ class _EmergencyPageState extends State<EmergencyPage> {
       // Retrieve data from the database
       Map<String, dynamic>? data =
           await dbBleHelper.getStoredEmergency(widget.uid, widget.id);
+      String name = await dbAuthHelper.getUsername(widget.uid);
+      print(name);
       setState(() {
-        _data = data; // Update the state with the new data
+        _data = data;
+        username = name;
       });
     } catch (error) {
-      // Handle errors
       print('Error retrieving data: $error');
     }
   }
