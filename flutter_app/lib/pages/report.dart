@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/screens/report_screen.dart';
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/utils/formatter.dart';
-import 'package:flutter_app/utils/notification_handler.dart';
 
 class ViewReportPage extends StatefulWidget {
   static const title = 'View Report';
@@ -41,7 +40,6 @@ class _ViewReportPageState extends State<ViewReportPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("ID: " + widget.id),
             if (_data == null) Center(child: CircularProgressIndicator()),
             if (_data != null) ...[
               ListSection(
@@ -141,7 +139,6 @@ class _ReportPageState extends State<ReportPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("ID: " + widget.id),
             if (_data == null) Center(child: CircularProgressIndicator()),
             if (_data != null) ...[
               ListSection(
@@ -191,22 +188,6 @@ class ListSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 8),
           Row(
             children: [
               const Icon(Icons.access_time, size: 18, color: Colors.grey),
@@ -220,6 +201,23 @@ class ListSection extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 18),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 8),
           const SizedBox(height: 16),
           Text(
             description,
@@ -348,7 +346,6 @@ class _EditReportPageState extends State<EditReportPage> {
 
   void updateReport(String title, String content) {
     dbBleHelper.updateData(widget.id, "report", title, content);
-    sendPushMessage("123", "report");
     Navigator.pop(context);
   }
 
@@ -372,7 +369,6 @@ class _EditReportPageState extends State<EditReportPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("ID: " + widget.id),
                   if (_data == null) Center(child: CircularProgressIndicator()),
                   if (_data != null) ...[
                     Row(
