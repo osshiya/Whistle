@@ -44,7 +44,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       List<Map<String, dynamic>> friendsList2 =
           List<Map<String, dynamic>>.from(friendData['friends'] ?? []);
       friendsList2.removeWhere((friend) => friend['email'] == myEmail);
-      await dbFriendHelper.updateFriendsList(friendEmail, friendsList2!);
+      await dbFriendHelper.updateFriendsList(friendEmail, friendsList2);
       print("Friends List: $friendsList");
     } else {
       print("No user found with email: $friendEmail");

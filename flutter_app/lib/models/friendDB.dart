@@ -4,7 +4,7 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class FirebaseHelper {
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
-    if (email != null && email.isNotEmpty) {
+    if (email.isNotEmpty) {
       // Query the collection for the user with the specified email
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
           .collection('users')

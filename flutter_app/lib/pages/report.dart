@@ -243,7 +243,6 @@ class CreateReportPage extends StatefulWidget {
 
 class _CreateReportPageState extends State<CreateReportPage> {
   late BleDB.FirebaseHelper dbBleHelper;
-  late Future<List<Map<String, dynamic>>?> _futureData;
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();

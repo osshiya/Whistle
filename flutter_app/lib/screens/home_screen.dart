@@ -255,8 +255,7 @@ class Lists extends StatelessWidget {
           future: Future.wait(snapshot.data!.map((data) async {
             String title = data['title'] ?? data['type'] ?? '';
             String uid = data['user'] ?? '';
-            String username =
-                await dbAuthHelper.getUsername(data['user']) ?? '';
+            String username = await dbAuthHelper.getUsername(data['user']);
             int? timestamp;
             if (data['timestamp'] is int) {
               timestamp = data['timestamp'];
