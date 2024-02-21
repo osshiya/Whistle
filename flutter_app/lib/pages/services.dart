@@ -4,8 +4,10 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
+import 'package:flutter_app/models/rtDB.dart' as rtDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/utils/notification_handler.dart';
+
 
 class BLEService {
   static final BLEService _instance = BLEService._internal();
@@ -218,7 +220,8 @@ class LocationService {
   static Future<String?> getCurrentCountry() async {
     bool serviceEnabled;
     LocationPermission permission;
-
+    AuthDB.FirebaseHelper dbAuthHelper = AuthDB.FirebaseHelper();
+    rtDB.RtdbHelper rtdbHelper = rtDB.RtdbHelper();
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw 'Location services are disabled.';
@@ -240,6 +243,8 @@ class LocationService {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+      String? uid = await dbAuthHelper.getStoredUid();
+      rtdbHelper.addUserWithCoordinates(uid,position.latitude, position.longitude);
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
