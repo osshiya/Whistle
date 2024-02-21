@@ -97,22 +97,26 @@ class _MyApp extends State<MyApp> {
   }
 
   void _handleMessage(RemoteMessage message) {
-    if (message.data["type"] == "Emergency") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => EmergencyPage(
-                id: message.data["id"], uid: message.data["uid"])),
-      );
-    } else if (message.data["type"] == "Report") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
+    if (mounted) {
+      // Check if the state is still mounted
+      if (message.data["type"] == "Emergency") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                EmergencyPage(id: message.data["id"], uid: message.data["uid"]),
+          ),
+        );
+      } else if (message.data["type"] == "Report") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
             builder: (context) => ViewReportPage(
-                id: message.data["id"], uid: message.data["uid"])),
-      );
+                id: message.data["id"], uid: message.data["uid"]),
+          ),
+        );
+      }
     }
-    return;
   }
 
   @override

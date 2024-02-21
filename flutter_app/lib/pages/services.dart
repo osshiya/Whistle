@@ -90,8 +90,6 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
   Map<String, String> reportLevels = {};
   Map<String, String> emergencyLevels = {};
   Map<String, String> buzzLevels = {};
-  Map<String, String> batteryLevels = {};
-  Map<String, String> clickLevels = {};
 
   late BleDB.FirebaseHelper dbHelper;
   late String uid;
@@ -138,16 +136,6 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
             subscribeToNotifications(characteristic, 'buzz');
             BLEService()._subscribeToNotifications(characteristic, 'buzz');
           }
-          if (characteristic.uuid.toString() ==
-              "01234567-0123-4567-89ab-0123456789f0") {
-            subscribeToNotifications(characteristic, 'battery');
-            BLEService()._subscribeToNotifications(characteristic, 'battery');
-          }
-          if (characteristic.uuid.toString() ==
-              "01234567-0123-4567-89ab-012345678901") {
-            subscribeToNotifications(characteristic, 'click');
-            BLEService()._subscribeToNotifications(characteristic, 'click');
-          }
         }
       }
     } catch (e) {
@@ -174,14 +162,6 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
               break;
             case 'buzz':
               buzzLevels[characteristic.serviceUuid.toString()] =
-                  level.toString();
-              break;
-            case 'battery':
-              batteryLevels[characteristic.serviceUuid.toString()] =
-                  level.toString();
-              break;
-            case 'click':
-              clickLevels[characteristic.serviceUuid.toString()] =
                   level.toString();
               break;
             default:
@@ -222,10 +202,6 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
                           'Emergency Level: ${emergencyLevels[service.uuid.toString()] ?? 'N/A'}'),
                       Text(
                           'Buzz Level: ${buzzLevels[service.uuid.toString()] ?? 'N/A'}'),
-                      Text(
-                          'Battery Level: ${batteryLevels[service.uuid.toString()] ?? 'N/A'}'),
-                      Text(
-                          'Click Level: ${clickLevels[service.uuid.toString()] ?? 'N/A'}')
                     ],
                   ),
                 );

@@ -1,12 +1,7 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
-//#include <BLEUtils.h>
-//#include <BLE2902.h>
 #include <M5StickCPlus.h>
 
-//#include <Wire.h>
-
-//change to unique BLE server name
 #define bleServerName "BLE#01"
 
 // Action variables
@@ -41,12 +36,6 @@ bool buzzOff() {
   return false;
 }
 
-double getBatteryLevel(void) {
-  uint16_t vbatData = M5.Axp.GetVbatData();
-  double vbat = vbatData * 1.1 / 1000;
-  return 100.0 * ((vbat - 3.0) / (4.07 - 3.0));
-}
-
 // Report Characteristic and Descriptor (2x)
 BLECharacteristic reportCharacteristics("01234567-0123-4567-89ab-0123456789cd", BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
 BLEDescriptor reportDescriptor(BLEUUID((uint16_t)0x2903));
@@ -59,16 +48,6 @@ BLEDescriptor emergencyDescriptor(BLEUUID((uint16_t)0x2904));
 BLECharacteristic buzzCharacteristics("01234567-0123-4567-89ab-0123456789ef", BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
 BLEDescriptor buzzDescriptor(BLEUUID((uint16_t)0x2905));
 
-// Battery Characteristic and Descriptor
-BLECharacteristic batteryCharacteristics("01234567-0123-4567-89ab-0123456789fg", BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-BLEDescriptor batteryDescriptor(BLEUUID((uint16_t)0x2906));
-
-// Click Characteristic and Descriptor
-BLECharacteristic clickCharacteristics("01234567-0123-4567-89ab-0123456789gh", BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-BLEDescriptor clickDescriptor(BLEUUID((uint16_t)0x2907));
-
-// I/flutter (32035): MYSERVICE:  01234567-0123-4567-89ab-0123456789ab | MYCHAR: 01234567-0123-4567-89ab-012345678901
-// I/flutter (32035): MYSERVICE:  01234567-0123-4567-89ab-0123456789ab | MYCHAR: 01234567-0123-4567-89ab-0123456789f0
 // I/flutter (32035): MYSERVICE:  01234567-0123-4567-89ab-0123456789ab | MYCHAR: 01234567-0123-4567-89ab-0123456789ef
 // I/flutter (32035): MYSERVICE:  01234567-0123-4567-89ab-0123456789ab | MYCHAR: 01234567-0123-4567-89ab-0123456789de
 // I/flutter (32035): MYSERVICE:  01234567-0123-4567-89ab-0123456789ab | MYCHAR: 01234567-0123-4567-89ab-0123456789cd
@@ -88,18 +67,6 @@ class MyServerCallbacks : public BLEServerCallbacks {
   }
 };
 
-// // Setup callbacks for Characteristics
-// class MyCharacteristicsCallbacks: public BLECharacteristicCallbacks {
-//   void onWrite(BLECharacteristic *pCharacteristic) {
-//     std::string rxValue = pCharacteristic->getValue();
-//     if (!rxValue.empty()) {
-//       ledStatus = std::stoi(rxValue);
-//       LED();
-//       Serial.println("LED Status: " + ledStatus);
-//     }
-//   }
-// };
-
 void setup() {
   // Start serial communication
   Serial.begin(115200);
@@ -110,7 +77,6 @@ void setup() {
   M5.Lcd.setRotation(3);
   M5.Lcd.fillScreen(BLACK);
   M5.Lcd.setCursor(0, 0, 2);
-  M5.Lcd.printf("BLE Server", 0);
 
   // Setup Home Button
   pinMode(M5_BUTTON_HOME, INPUT);
@@ -141,17 +107,6 @@ void setup() {
   buzzDescriptor.setValue("Buzz Status");
   buzzCharacteristics.addDescriptor(&buzzDescriptor);
 
-  // Battery ?
-  bleService->addCharacteristic(&batteryCharacteristics);
-  batteryDescriptor.setValue("Battery Status");
-  batteryCharacteristics.addDescriptor(&batteryDescriptor);
-
-  // Click ?
-  bleService->addCharacteristic(&clickCharacteristics);
-  clickDescriptor.setValue("Click Status");
-  clickCharacteristics.addDescriptor(&clickDescriptor);
-  // ledCharacteristics.setCallbacks(new MyCharacteristicsCallbacks);
-
   // Start the service
   bleService->start();
 
@@ -170,9 +125,6 @@ void loop() {
     if (digitalRead(M5_BUTTON_HOME) == LOW && millis() - lastButtonTime > debounceDelay) {
       // Button is pressed and update the count
       click += 1;
-
-      clickCharacteristics.setValue((uint8_t *)&click, sizeof(click));
-      clickCharacteristics.notify();
 
       Serial.print("Clicks = ");
       Serial.print(click);
@@ -236,29 +188,6 @@ void loop() {
         }
         click = 0;
       }
-    }
-
-
-    if ((millis() - lastTime) > timerDelay) {
-
-      // Battery
-      batt = getBatteryLevel();
-
-      // Notify battery reading from IMU
-      //Set Battery Characteristic value and notify connected client
-      batteryCharacteristics.setValue((uint8_t *)&batt, sizeof(batt));
-      batteryCharacteristics.notify();
-
-      Serial.print("Battery = ");
-      Serial.print(batt);
-      Serial.print(" %");
-
-      M5.Lcd.setCursor(0, 20, 2);
-      M5.Lcd.print("Battery = ");
-      M5.Lcd.print(batt);
-      M5.Lcd.println(" %");
-
-      lastTime = millis();
     }
   }
 }
