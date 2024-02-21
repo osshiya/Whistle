@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
+
 import 'package:flutter_app/models/friendDB.dart' as FriendDB;
 
 class FriendsScreen extends StatefulWidget {
@@ -23,12 +24,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
     super.initState();
     dbAuthHelper = AuthDB.FirebaseHelper();
     dbFriendHelper = FriendDB.FirebaseHelper();
+
     _loadFriends();
   }
 
   Future<void> _loadFriends() async {
     String? uid = await dbAuthHelper.getStoredUid();
-
     List<Map<String, dynamic>> friends = await dbFriendHelper.getFriends(uid);
     setState(() {
       friendsList = friends;
@@ -37,6 +38,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   Future<void> _deleteFriend(String friendEmail) async {
     String? myEmail = await dbAuthHelper.getStoredEmail();
+
     Map<String, dynamic>? friendData =
         await dbFriendHelper.getUserByEmail(friendEmail);
     if (friendData != null && friendData.isNotEmpty) {
