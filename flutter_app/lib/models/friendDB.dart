@@ -33,14 +33,18 @@ class FirebaseHelper {
       Map<String, dynamic>? userData = await getUserByEmail(email);
 
       if (userData != null && userData.containsKey('uid')) {
-        Map<String, dynamic>? newFriendData = await getUserByEmail(newFriendEmail);
+        Map<String, dynamic>? newFriendData =
+            await getUserByEmail(newFriendEmail);
 
         if (newFriendData != null && newFriendData.containsKey('uid')) {
           // Extract the current friends list from the user data
           List<Map<String, dynamic>> currentFriends =
-          List<Map<String, dynamic>>.from(userData['friends'] ?? []);
+              List<Map<String, dynamic>>.from(userData['friends'] ?? []);
 
-          Map<String, String> newFriend = { 'uid': newFriendData['uid'], 'email': newFriendEmail };
+          Map<String, String> newFriend = {
+            'uid': newFriendData['uid'],
+            'email': newFriendEmail
+          };
 
           // Append the new friend email to the list
           currentFriends.add(newFriend);
@@ -87,10 +91,11 @@ class FirebaseHelper {
   Future<List<Map<String, dynamic>>> getFriends(String uid) async {
     try {
       DocumentSnapshot userDoc =
-      await _firestore.collection('users').doc(uid).get();
+          await _firestore.collection('users').doc(uid).get();
 
       if (userDoc.exists) {
-        List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(userDoc['friends'] ?? []);
+        List<Map<String, dynamic>> friends =
+            List<Map<String, dynamic>>.from(userDoc['friends'] ?? []);
 
         // // Extract email addresses from the list of friends
         // List<String> friendEmails = friends.map<String>((friend) => friend['email'] as String).toList();

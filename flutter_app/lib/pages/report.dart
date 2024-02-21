@@ -1,19 +1,8 @@
-// home_screen.dart
+// report.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
-// import 'package:flutter/foundation.dart';
-// import 'package:familyjob/widgets.dart';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:flutter_app/screens/report_screen.dart';
-
-import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/utils/formatter.dart';
-
 import 'package:flutter_app/utils/notification_handler.dart';
 
 class ViewReportPage extends StatefulWidget {
@@ -40,16 +29,6 @@ class _ViewReportPageState extends State<ViewReportPage> {
     _retrieveData();
   }
 
-  Future<bool> deleteReport(String id) async {
-    try {
-      await dbBleHelper.deleteData(id, "report");
-      return true; // Deletion successful
-    } catch (error) {
-      print('Error deleting report: $error');
-      return false; // Deletion failed
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,10 +42,8 @@ class _ViewReportPageState extends State<ViewReportPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("ID: " + widget.id),
-            if (_data == null) // Show loading indicator if data is null
-              Center(child: CircularProgressIndicator()),
+            if (_data == null) Center(child: CircularProgressIndicator()),
             if (_data != null) ...[
-              // Show data if available
               ListSection(
                 title: _data?['title'] ?? _data?['type'] ?? '',
                 subtitle: _data?['user'] ?? '',
@@ -82,13 +59,12 @@ class _ViewReportPageState extends State<ViewReportPage> {
 
   Future<void> _retrieveData() async {
     try {
-      // Retrieve data from the database or wherever it's stored
-      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.uid, widget.id);
+      Map<String, dynamic>? data =
+          await dbBleHelper.getStoredReport(widget.uid, widget.id);
       setState(() {
-        _data = data; // Update the state with the new data
+        _data = data;
       });
     } catch (error) {
-      // Handle errors
       print('Error retrieving data: $error');
     }
   }
@@ -141,7 +117,8 @@ class _ReportPageState extends State<ReportPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => EditReportPage(id: widget.id, uid: widget.uid)),
+                    builder: (context) =>
+                        EditReportPage(id: widget.id, uid: widget.uid)),
               ).then((_) {
                 _retrieveData();
               });
@@ -165,10 +142,8 @@ class _ReportPageState extends State<ReportPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("ID: " + widget.id),
-            if (_data == null) // Show loading indicator if data is null
-              Center(child: CircularProgressIndicator()),
+            if (_data == null) Center(child: CircularProgressIndicator()),
             if (_data != null) ...[
-              // Show data if available
               ListSection(
                 title: _data?['title'] ?? _data?['type'] ?? '',
                 subtitle: _data?['user'] ?? '',
@@ -184,13 +159,12 @@ class _ReportPageState extends State<ReportPage> {
 
   Future<void> _retrieveData() async {
     try {
-      // Retrieve data from the database or wherever it's stored
-      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.uid, widget.id);
+      Map<String, dynamic>? data =
+          await dbBleHelper.getStoredReport(widget.uid, widget.id);
       setState(() {
-        _data = data; // Update the state with the new data
+        _data = data;
       });
     } catch (error) {
-      // Handle errors
       print('Error retrieving data: $error');
     }
   }
@@ -225,7 +199,6 @@ class ListSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          // Add spacing between title and subtitle
           Text(
             subtitle,
             style: const TextStyle(
@@ -234,12 +207,10 @@ class ListSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          // Add spacing between subtitle and timestamp
           Row(
             children: [
               const Icon(Icons.access_time, size: 18, color: Colors.grey),
               const SizedBox(width: 4),
-              // Add spacing between icon and timestamp
               Text(
                 timestamp,
                 style: const TextStyle(
@@ -250,7 +221,6 @@ class ListSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Add spacing between timestamp and description
           Text(
             description,
             style: const TextStyle(
@@ -284,18 +254,10 @@ class _CreateReportPageState extends State<CreateReportPage> {
   void initState() {
     super.initState();
     dbBleHelper = BleDB.FirebaseHelper();
-    // _refreshList();
   }
-
-  // Future<void> _refreshList() async {
-  //   setState(() {
-  //     _futureData = dbBleHelper.getStoredReport(uid);
-  //   });
-  // }
 
   @override
   void dispose() {
-    // Clean up controller
     _titleController.dispose();
     _descController.dispose();
     super.dispose();
@@ -333,12 +295,12 @@ class _CreateReportPageState extends State<CreateReportPage> {
               children: [
                 const SizedBox(height: 8),
                 TextFormField(
-                  controller: _titleController, // Predefined value
+                  controller: _titleController,
                   decoration: InputDecoration(labelText: 'Title'),
                 ),
                 SizedBox(height: 16),
                 TextFormField(
-                  controller: _descController, // Predefined value
+                  controller: _descController,
                   decoration: InputDecoration(labelText: 'Description'),
                   maxLines: null, // Unlimited number of lines
                   keyboardType: TextInputType.multiline,
@@ -379,12 +341,10 @@ class _EditReportPageState extends State<EditReportPage> {
 
   @override
   void dispose() {
-    // Clean up controller
     _titleController.dispose();
     _descController.dispose();
     super.dispose();
   }
-
 
   void updateReport(String title, String content) {
     dbBleHelper.updateData(widget.id, "report", title, content);
@@ -413,16 +373,13 @@ class _EditReportPageState extends State<EditReportPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("ID: " + widget.id),
-                  if (_data == null) // Show loading indicator if data is null
-                    Center(child: CircularProgressIndicator()),
+                  if (_data == null) Center(child: CircularProgressIndicator()),
                   if (_data != null) ...[
-                    // Show data if available
                     Row(
                       children: [
                         const Icon(Icons.access_time,
                             size: 18, color: Colors.grey),
                         const SizedBox(width: 4),
-                        // Add spacing between icon and timestamp
                         Text(
                           formatTimestamp(_data?['timestamp']),
                           style: const TextStyle(
@@ -434,14 +391,14 @@ class _EditReportPageState extends State<EditReportPage> {
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
-                      controller: _titleController, // Predefined value
+                      controller: _titleController,
                       decoration: InputDecoration(labelText: 'Title'),
                     ),
                     SizedBox(height: 16),
                     TextFormField(
                       controller: _descController, // Predefined value
                       decoration: InputDecoration(labelText: 'Description'),
-                      maxLines: null, // Unlimited number of lines
+                      maxLines: null,
                       keyboardType: TextInputType.multiline,
                     ),
                   ],
@@ -450,15 +407,14 @@ class _EditReportPageState extends State<EditReportPage> {
 
   Future<void> _retrieveData() async {
     try {
-      // Retrieve data from the database or wherever it's stored
-      Map<String, dynamic>? data = await dbBleHelper.getStoredReport(widget.uid, widget.id);
+      Map<String, dynamic>? data =
+          await dbBleHelper.getStoredReport(widget.uid, widget.id);
       setState(() {
         _data = data;
         _titleController.text = _data?['title'] ?? '';
         _descController.text = _data?['desc'] ?? '';
       });
     } catch (error) {
-      // Handle errors
       print('Error retrieving data: $error');
     }
   }

@@ -7,8 +7,6 @@ class Friends extends StatefulWidget {
 }
 
 class _FriendsPageState extends State<Friends> {
-  // ... your existing code ...
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +16,6 @@ class _FriendsPageState extends State<Friends> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              // Navigate to FriendsScreen when the add button is pressed
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const FriendsScreen()),
@@ -27,7 +24,6 @@ class _FriendsPageState extends State<Friends> {
           ),
         ],
       ),
-      // ... rest of your existing code ...
     );
   }
 }

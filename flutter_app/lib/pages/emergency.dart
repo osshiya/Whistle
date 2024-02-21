@@ -1,20 +1,7 @@
-// home_screen.dart
+// emergency.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
-// import 'package:flutter/foundation.dart';
-// import 'package:familyjob/widgets.dart';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:flutter_app/screens/report_screen.dart';
-
-import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/utils/formatter.dart';
-
-import 'package:flutter_app/utils/notification_handler.dart';
 
 class EmergencyPage extends StatefulWidget {
   static const title = 'Emergency';
@@ -45,19 +32,15 @@ class _EmergencyPageState extends State<EmergencyPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFFF5554),
       appBar: AppBar(
-        title: const Text(EmergencyPage.title, style: TextStyle(color: Colors.white)),
+        title: const Text(EmergencyPage.title,
+            style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFFFF5554),
         iconTheme: IconThemeData(color: Colors.white),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.call),
               tooltip: "Call Emergency",
-              onPressed: () async {
-                // bool deletionResult = await deleteReport(widget.id);
-                // if (deletionResult) {
-                //   Navigator.pop(context);
-                // }
-              }),
+              onPressed: () async {}),
         ],
       ),
       body: Padding(
@@ -67,13 +50,11 @@ class _EmergencyPageState extends State<EmergencyPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 180.0, // Set the width of the container
-              height: 180.0, // Set the height of the container
+              width: 180.0,
+              height: 180.0,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                    color: Colors.white,
-                    width: 18.0 * 0.4), // Define the border
+                border: Border.all(color: Colors.white, width: 18.0 * 0.4),
               ),
               child: CircleAvatar(
                 radius: 180.0 / 2,
@@ -88,7 +69,6 @@ class _EmergencyPageState extends State<EmergencyPage> {
                 ),
               ),
             ),
-            // const SizedBox(height: 2),
             const Text("SOS",
                 style: TextStyle(
                     fontWeight: FontWeight.w500,
@@ -112,7 +92,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
   Future<void> _retrieveData() async {
     try {
-      // Retrieve data from the database or wherever it's stored
+      // Retrieve data from the database
       Map<String, dynamic>? data =
           await dbBleHelper.getStoredEmergency(widget.uid, widget.id);
       setState(() {
@@ -149,7 +129,6 @@ class MessageSection extends StatelessWidget {
             "$subtitle has activated an emergency alert. He/She may be in danger right now.",
             style: const TextStyle(
               fontSize: 14,
-              // fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
             textAlign: TextAlign.center,
@@ -161,12 +140,10 @@ class MessageSection extends StatelessWidget {
             children: [
               const Icon(Icons.access_time, size: 18, color: Colors.white),
               const SizedBox(width: 4),
-              // Add spacing between icon and timestamp
               Text(
                 timestamp,
                 style: const TextStyle(
                   fontSize: 12,
-                  // fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),

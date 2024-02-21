@@ -3,7 +3,8 @@ import 'package:firebase_database/firebase_database.dart';
 class RtdbHelper {
   final DatabaseReference _database = FirebaseDatabase.instance.reference();
 
-  Future<void> addUserWithCoordinates(String uid, double latitude, double longitude) async {
+  Future<void> addUserWithCoordinates(
+      String uid, double latitude, double longitude) async {
     try {
       // Reference the path to the user's data using their UID
       DatabaseReference userRef = _database.child('users/$uid');
@@ -21,4 +22,3 @@ class RtdbHelper {
     }
   }
 }
-

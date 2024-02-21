@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
-import 'dart:io';
 import 'dart:async';
-import 'dart:math';
-
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-
 import 'package:flutter_app/models/bleDB.dart';
-import 'package:flutter_app/utils/bluetooth_handler.dart';
 
 class BLEService {
   static final BLEService _instance = BLEService._internal();
@@ -22,17 +16,17 @@ class BLEService {
   BLEService._internal();
 
   Future<void> _uploadReportData(int data) async {
-    final newUid = await dbHelper.getStoredUid(); // Await for the result
+    final newUid = await dbHelper.getStoredUid();
     dbHelper.storeData(newUid, 'report', data);
   }
 
   Future<void> _uploadEmergencyData(int data) async {
-    final newUid = await dbHelper.getStoredUid(); // Await for the result
+    final newUid = await dbHelper.getStoredUid();
     dbHelper.storeData(newUid, 'emergency', data);
   }
 
   Future<void> _uploadBuzzData(int data) async {
-    final newUid = await dbHelper.getStoredUid(); // Await for the result
+    final newUid = await dbHelper.getStoredUid();
     dbHelper.storeData(newUid, 'buzz', data);
   }
 
@@ -44,19 +38,20 @@ class BLEService {
         if (value != null && value.isNotEmpty) {
           int level = value[0];
           print('$type Levels: $level');
-            switch (type) {
-              case 'report':
-                _uploadReportData(DateTime.now().millisecondsSinceEpoch.toInt());
-                break;
-              case 'emergency':
-                _uploadEmergencyData(DateTime.now().millisecondsSinceEpoch.toInt());
-                break;
-              case 'buzz':
-                _uploadBuzzData(DateTime.now().millisecondsSinceEpoch.toInt());
-                break;
-              default:
-                break;
-            }
+          switch (type) {
+            case 'report':
+              _uploadReportData(DateTime.now().millisecondsSinceEpoch.toInt());
+              break;
+            case 'emergency':
+              _uploadEmergencyData(
+                  DateTime.now().millisecondsSinceEpoch.toInt());
+              break;
+            case 'buzz':
+              _uploadBuzzData(DateTime.now().millisecondsSinceEpoch.toInt());
+              break;
+            default:
+              break;
+          }
         }
       });
     } catch (e) {
@@ -86,8 +81,7 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
   Map<String, String> clickLevels = {};
 
   late FirebaseHelper dbHelper;
-  late String uid; // Variable to store the UID
-
+  late String uid;
 
   @override
   void initState() {
@@ -103,9 +97,8 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
       setState(() {
         services = discoveredServices;
       });
-      await _readLevels(); // Call this after services are discovered
+      await _readLevels();
     } catch (e) {
-      // Handle error
       print('Error discovering services: $e');
     }
   }
@@ -113,7 +106,8 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
   Future<void> _readLevels() async {
     try {
       for (BluetoothService service in services!) {
-        for (BluetoothCharacteristic characteristic in service.characteristics) {
+        for (BluetoothCharacteristic characteristic
+            in service.characteristics) {
           print("MYSERVICE:  ${service.uuid} | MYCHAR: ${characteristic.uuid}");
 
           if (characteristic.uuid.toString() ==
@@ -158,19 +152,24 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
           print('$type Levels: $level');
           switch (type) {
             case 'report':
-              reportLevels[characteristic.serviceUuid.toString()] = level.toString();
+              reportLevels[characteristic.serviceUuid.toString()] =
+                  level.toString();
               break;
             case 'emergency':
-              emergencyLevels[characteristic.serviceUuid.toString()] = level.toString();
+              emergencyLevels[characteristic.serviceUuid.toString()] =
+                  level.toString();
               break;
             case 'buzz':
-              buzzLevels[characteristic.serviceUuid.toString()] = level.toString();
+              buzzLevels[characteristic.serviceUuid.toString()] =
+                  level.toString();
               break;
             case 'battery':
-              batteryLevels[characteristic.serviceUuid.toString()] = level.toString();
+              batteryLevels[characteristic.serviceUuid.toString()] =
+                  level.toString();
               break;
             case 'click':
-              clickLevels[characteristic.serviceUuid.toString()] = level.toString();
+              clickLevels[characteristic.serviceUuid.toString()] =
+                  level.toString();
               break;
             default:
               break;
@@ -204,11 +203,16 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Report Level: ${reportLevels[service.uuid.toString()] ?? 'N/A'}'),
-                      Text('Emergency Level: ${emergencyLevels[service.uuid.toString()] ?? 'N/A'}'),
-                      Text('Buzz Level: ${buzzLevels[service.uuid.toString()] ?? 'N/A'}'),
-                      Text('Battery Level: ${batteryLevels[service.uuid.toString()] ?? 'N/A'}'),
-                      Text('Click Level: ${clickLevels[service.uuid.toString()] ?? 'N/A'}')
+                      Text(
+                          'Report Level: ${reportLevels[service.uuid.toString()] ?? 'N/A'}'),
+                      Text(
+                          'Emergency Level: ${emergencyLevels[service.uuid.toString()] ?? 'N/A'}'),
+                      Text(
+                          'Buzz Level: ${buzzLevels[service.uuid.toString()] ?? 'N/A'}'),
+                      Text(
+                          'Battery Level: ${batteryLevels[service.uuid.toString()] ?? 'N/A'}'),
+                      Text(
+                          'Click Level: ${clickLevels[service.uuid.toString()] ?? 'N/A'}')
                     ],
                   ),
                 );
