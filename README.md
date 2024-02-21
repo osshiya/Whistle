@@ -9,16 +9,18 @@ Despite the advancements in civilization, discrimination, bullying, and various 
 ### Features
 1. IoT Device Integration
     - Seamless connection between the mobile app and the IoT device using Bluetooth Low Energy (BLE) for efficient, low-power communication.
-    - Create Report or Emergency via Button presses
+    - Allows users to create reports or trigger emergencies via button presses on the IoT device.
 3. Reporting Features
     - View: Users can view their own reports and reports from their close contacts, enhancing awareness and support within their network.
     - Edit Later: Users can update or modify their reports after triggering, allowing for the addition of new information or clarification of existing details.
 4. Emergency Response
-   - Emergency Contact: Friends can facilitates immediate actions such as calling emergency services or notifying the user's predefined contacts, enabling a swift response to urgent situations.
-6. Mapping and Localization: Utilizes Google Maps to display the real-time locations of users and their close contacts, offering geographical context to reports and emergencies.
-7. Notifications
-    - Sends timely alerts and updates about reports, emergencies, and other relevant activities, ensuring users are promptly informed of significant events within their network of close contacts.
-8. Friends
+    - Emergency Contact: Friends can facilitates immediate actions such as calling emergency services or notifying the user's predefined contacts, enabling a swift response to urgent situations.
+6. Mapping and Localization
+    - Real-time Location Sharing: Utilizes Google Maps to display the real-time locations of users and their close contacts, providing geographical context to reports and emergencies.
+8. Notifications
+    - Notify: Sends timely alerts and updates about reports, emergencies, and other relevant activities, ensuring users are promptly informed of significant events within their network of close contacts.
+9. Friends
+   - Share: Allows users to add close contacts as friends to share reports, emergencies, and locations for improved safety and support.
 
 ### Target Audience
 - Women: At higher risk of harassment or assault in various settings, they can benefit from a quick and discreet way to alert authorities or loved ones.
@@ -76,6 +78,7 @@ Make sure an Android emulator is running or a device is connected to your comput
 2. Friends: Add existing users as friends via email to share reports, emergency records, and locations with your friends.
 3. Map: View the live locations of you and your friends on the map.
 4. Reports: View and update reports created by you.
+5. Settings: Change your name and emergency contact information.
 
 #### IoT Device
 1. Report: Press the home button on the M5StickC Plus twice to trigger a report.
