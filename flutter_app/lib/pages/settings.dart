@@ -133,11 +133,29 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               },
               child: Text('Save Changes'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(40),
+                foregroundColor: Colors.white,
+                backgroundColor: const Color(0xFF2B39C0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  // side: BorderSide(color: Colors.blue),
+                ),
+              ),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () => _logout(),
               child: const Text('Log Out'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(40),
+                foregroundColor: Colors.white,
+                backgroundColor: const Color(0xFFFF5554),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  // side: BorderSide(color: Colors.blue),
+                ),
+              ),
             ),
           ],
         ),
