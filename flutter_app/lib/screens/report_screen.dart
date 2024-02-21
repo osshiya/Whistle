@@ -1,5 +1,6 @@
 // report_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_app/pages/home.dart';
 import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/utils/formatter.dart';
@@ -26,11 +27,71 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+        padding: const EdgeInsets.only(bottom: 32.0, right: 32.0, left: 32.0),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Lists(dbBleHelper: dbBleHelper)]));
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const ReportSection(name: "My Reports"),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CreateReportPage()),
+                      ).then((_) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) => const HomePage(
+                              selectedIndex: 3,
+                            ),
+                          ),
+                          (route) => false,
+                        );
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shadowColor: Color(0xFF000000),
+                        shape: CircleBorder(),
+                        elevation: 8),
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.black,
+                      size: 24.0,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Lists(dbBleHelper: dbBleHelper)
+            ]));
+  }
+}
+
+class ReportSection extends StatefulWidget {
+  const ReportSection({Key? key, required this.name}) : super(key: key);
+
+  final String name;
+
+  @override
+  State<ReportSection> createState() => _ReportSectionState();
+}
+
+class _ReportSectionState extends State<ReportSection> {
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      widget.name,
+      style: const TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+      ),
+    );
   }
 }
 
@@ -62,38 +123,54 @@ class _ListsState extends State<Lists> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: _futureData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Text('No data available');
-          }
-          List<ListItemData> items = snapshot.data!.map((data) {
-            String id = data['id'] ?? '';
-            String uid = data['user'] ?? '';
-            String title = data['title'] ?? data['type'] ?? '';
-            String subtitle = data['desc'] ?? '';
-            int timestamp = data['timestamp'] ?? '';
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 0),
+        padding: EdgeInsets.all(13.0),
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 0,
+              blurRadius: 6.4,
+              offset: Offset(0, 3),
+            ),
+          ],
+          borderRadius: BorderRadius.circular(4.0),
+          color: Colors.white,
+        ),
+        child: FutureBuilder<List<Map<String, dynamic>>?>(
+          future: _futureData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Text('No data available');
+            }
+            List<ListItemData> items = snapshot.data!.map((data) {
+              String id = data['id'] ?? '';
+              String uid = data['user'] ?? '';
+              String title = data['title'] ?? data['type'] ?? '';
+              String subtitle = data['desc'] ?? '';
+              int timestamp = data['timestamp'] ?? '';
 
-            String formattedTime = formatTimestamp(timestamp);
+              String formattedTime = formatTimestamp(timestamp);
 
-            return ListItemData(
-                id: id,
-                uid: uid,
-                title: title,
-                subtitle: subtitle,
-                time: formattedTime);
-          }).toList();
-          return ListSection(items: items, refreshCallback: _refreshList);
-        },
+              return ListItemData(
+                  id: id,
+                  uid: uid,
+                  title: title,
+                  subtitle: subtitle,
+                  time: formattedTime);
+            }).toList();
+            return ListSection(items: items, refreshCallback: _refreshList);
+          },
+        ),
       ),
     );
   }

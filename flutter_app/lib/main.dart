@@ -1,42 +1,43 @@
-import 'dart:isolate';
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:ui';
+import 'dart:isolate';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_app/firebase_options.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_app/pages/report.dart';
-import 'package:flutter_app/pages/emergency.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_app/firebase_options.dart';
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
+import 'package:flutter_app/pages/report.dart';
+import 'package:flutter_app/pages/emergency.dart';
+import 'package:flutter_app/BackgroundTask.dart' as bg;
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
-import 'BackgroundTask.dart' as bg;
 void backGroundTask(RootIsolateToken rootIsolateToken) async {
-  BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken!);
+  BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
+
   // Initialize Firebase in the background isolate
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Now, spawn another isolate for periodic tasks
-  // Now, spawn another isolate for periodic tasks
-  AndroidAlarmManager.periodic(const Duration(minutes: 15), 0, bg.BackgroundTask.updateCoordinatesIsolate,
-    exact: true, // Ensure precise timing
-    wakeup: true);
-}
 
+  // Now, spawn another isolate for periodic tasks
+  AndroidAlarmManager.periodic(const Duration(minutes: 15), 0,
+      bg.BackgroundTask.updateCoordinatesIsolate,
+      exact: true, // Ensure precise timing
+      wakeup: true);
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
   await AndroidAlarmManager.initialize();
   RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   Isolate.spawn(backGroundTask, rootIsolateToken);
-  
+
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+
   NotificationSettings notificationSettings =
       await firebaseMessaging.requestPermission();
   if (notificationSettings.authorizationStatus ==
