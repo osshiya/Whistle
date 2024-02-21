@@ -89,8 +89,6 @@ Make sure an Android emulator is running or a device is connected to your comput
 2. Emergency: Press the home button on the M5StickC Plus thrice to trigger an emergency.
 
 ### Examples
-• Include examples: Provide examples of how to use the software and what it can do.
-
 <img src="https://github.com/osshiya/GDSC-2024/assets/64403759/cba9eafe-94ac-4e9e-8512-561f8a534126" width="150">
 <img src="https://github.com/osshiya/GDSC-2024/assets/64403759/b6e0b8fd-9b86-4e0c-b737-a2c6f9e33906" width="150">
 
