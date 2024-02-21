@@ -75,19 +75,36 @@ Make sure an Android emulator is running or a device is connected to your comput
 ### How to Use
 
 #### Flutter Mobile App
-1. Home: Displays lists of reports and emergencies made by you and your friends.
-2. Friends: Add existing users as friends via email to share reports, emergency records, and locations with your friends.
-3. Map: View the live locations of you and your friends on the map.
-4. Reports: View and update reports created by you.
-5. Settings: Change your name and emergency contact information.
+1. Login for Testing
+    - Email: tester@whistletester.com
+    - Password: 123123
+2. Home: Displays lists of reports and emergencies made by you and your friends.
+3. Friends: Add existing users as friends via email to share reports, emergency records, and locations with your friends.
+4. Map: View the live locations of you and your friends on the map.
+5. Reports: View and update reports created by you.
+6. Settings: Change your name and emergency contact information.
 
 #### IoT Device
 1. Report: Press the home button on the M5StickC Plus twice to trigger a report.
 2. Emergency: Press the home button on the M5StickC Plus thrice to trigger an emergency.
 
 ### Examples
-• Include examples: Provide examples of how to use the software and what it can 
-do. Use screenshots or code snippets to illustrate your points if needed.
+• Include examples: Provide examples of how to use the software and what it can do.
+
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/cba9eafe-94ac-4e9e-8512-561f8a534126" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/b6e0b8fd-9b86-4e0c-b737-a2c6f9e33906" width="150">
+
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/6d3bdd91-a371-4b2e-a7fa-5f613a0b9e6e" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/f1244871-46df-42ef-bb21-edb5ba348502" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/da1d4f21-6400-4c13-a00a-3b6a34fbedfa" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/9ba5fe59-8f57-439e-93a6-4b5a012021d0" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/242f6618-6e02-4f97-996f-4edaa24b979f" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/db21aa1d-c1f4-4059-b078-807850459050" width="150">
+
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/332946aa-4ff1-45bd-8b5c-fc8b84f744ab" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/9cc15792-3820-4b0a-b880-7b580b021f37" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/4eb9428c-96e4-4f9b-b842-2f1c3745976c" width="150">
+<img src="https://github.com/osshiya/GDSC-2024/assets/64403759/bd2a5cc4-15cf-4b83-84cd-e61c10fb9840" width="150">
 
 ## Contact
 - [osshiya](mailto:osshiya@gmail.com)
