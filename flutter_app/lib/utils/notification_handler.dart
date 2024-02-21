@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 
 /// The API endpoint here accepts a raw FCM payload.
-String constructFCMPayload(String? token, String type) {
+String constructFCMPayload(String? token, String uid, String id, String type) {
   type = type[0].toUpperCase() + type.substring(1);
   String title;
   String body;
@@ -25,14 +25,15 @@ String constructFCMPayload(String? token, String type) {
         'title': title,
         'body': body,
       },
-      'data': {'type': type, 'id': "2nWd2YJjRnpiV58djvBz"}
+      'data': {'type': type, 'id': id, 'uid': uid}
     },
   };
 
   return jsonEncode(notificationData);
 }
 
-Future<void> sendPushMessage(String uid, String type) async {
+Future<void> sendPushMessage(
+    String uid, String id, String token, String type) async {
   final jsonCredentials =
       await rootBundle.loadString('assets/gdsc-2024-7d8314390899.json');
   final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
@@ -44,8 +45,6 @@ Future<void> sendPushMessage(String uid, String type) async {
 
   String senderId = "962935829636";
 
-  String token =
-      "d7chJKo8S3eVXktEoTR5sV:APA91bElZdLzWpl8vZAVKnan1p7m1-rfjdDmZpPRw1shM25IjAz2CV7jXWpTVci-sYsM5crEXSCNxyHQJHEsXfF0xFbcZptBeNNTr7V0M9z-xCbhR-7bpExJoPbIoHlqa3E7b7Xq-AzB";
   if (token == null) {
     print('Unable to send FCM message, no token exists.');
     return;
@@ -58,7 +57,7 @@ Future<void> sendPushMessage(String uid, String type) async {
       headers: {
         'content-type': 'application/json',
       },
-      body: constructFCMPayload(token, type),
+      body: constructFCMPayload(token, uid, id, type),
     );
 
     if (response.statusCode == 200) {

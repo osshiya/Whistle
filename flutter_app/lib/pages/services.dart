@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:async';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:flutter_app/models/bleDB.dart';
+import 'package:flutter_app/models/authDB.dart' as AuthDB;
+import 'package:flutter_app/models/bleDB.dart' as BleDB;
+import 'package:flutter_app/utils/notification_handler.dart';
 
 class BLEService {
   static final BLEService _instance = BLEService._internal();
-  late FirebaseHelper dbHelper = FirebaseHelper();
+  late AuthDB.FirebaseHelper dbAuthHelper = AuthDB.FirebaseHelper();
+  late BleDB.FirebaseHelper dbBleHelper = BleDB.FirebaseHelper();
 
   factory BLEService() {
     return _instance;
@@ -15,19 +18,29 @@ class BLEService {
 
   BLEService._internal();
 
+  Future<void> multicast(String uid, String id, String type) async {
+    List<String> fcms = await dbAuthHelper.getFriendsFCMTokens();
+    for (var fcm in fcms) {
+      sendPushMessage(uid, id, fcm, type);
+    }
+  }
+
   Future<void> _uploadReportData(int data) async {
-    final newUid = await dbHelper.getStoredUid();
-    dbHelper.storeData(newUid, 'report', data);
+    final newUid = await dbBleHelper.getStoredUid();
+    final id = await dbBleHelper.storeData(newUid, 'report', data);
+    multicast(newUid, id!, 'report');
   }
 
   Future<void> _uploadEmergencyData(int data) async {
-    final newUid = await dbHelper.getStoredUid();
-    dbHelper.storeData(newUid, 'emergency', data);
+    final newUid = await dbBleHelper.getStoredUid();
+    final id = await dbBleHelper.storeData(newUid, 'emergency', data);
+    multicast(newUid, id!, 'emergency');
   }
 
   Future<void> _uploadBuzzData(int data) async {
-    final newUid = await dbHelper.getStoredUid();
-    dbHelper.storeData(newUid, 'buzz', data);
+    final newUid = await dbBleHelper.getStoredUid();
+    final id = await dbBleHelper.storeData(newUid, 'buzz', data);
+    multicast(newUid, id!, 'buzz');
   }
 
   Future<void> _subscribeToNotifications(
@@ -80,12 +93,12 @@ class _BLEServicesPageState extends State<BLEServicesPage> {
   Map<String, String> batteryLevels = {};
   Map<String, String> clickLevels = {};
 
-  late FirebaseHelper dbHelper;
+  late BleDB.FirebaseHelper dbHelper;
   late String uid;
 
   @override
   void initState() {
-    dbHelper = FirebaseHelper();
+    dbHelper = BleDB.FirebaseHelper();
     super.initState();
     _discoverServices();
   }

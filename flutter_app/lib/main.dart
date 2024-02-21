@@ -6,8 +6,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter_app/firebase_options.dart';
 import 'package:flutter_app/auth/login_page.dart';
-import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/pages/home.dart';
+import 'package:flutter_app/pages/report.dart';
+import 'package:flutter_app/pages/emergency.dart';
 import 'package:flutter_app/background_task.dart';
 
 Future<void> main() async {
@@ -24,8 +25,10 @@ Future<void> main() async {
 
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-  NotificationSettings notificationSettings  = await firebaseMessaging.requestPermission();
-  if (notificationSettings.authorizationStatus == AuthorizationStatus.authorized) {
+  NotificationSettings notificationSettings =
+      await firebaseMessaging.requestPermission();
+  if (notificationSettings.authorizationStatus ==
+      AuthorizationStatus.authorized) {
     await firebaseMessaging.setAutoInitEnabled(true);
     print('User granted permission');
   } else if (notificationSettings.authorizationStatus ==
@@ -69,7 +72,6 @@ Future<void> main() async {
   });
 }
 
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -80,7 +82,8 @@ class MyApp extends StatefulWidget {
 class _MyApp extends State<MyApp> {
   Future<void> setupInteractedMessage() async {
     // Get any messages which caused the application to open from a terminated state.
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
 
     // If the message also contains a data property with a "type",
     // navigate to a "type" screen
@@ -94,11 +97,19 @@ class _MyApp extends State<MyApp> {
   }
 
   void _handleMessage(RemoteMessage message) {
-    if (message.data["type"] == "Report") {
+    if (message.data["type"] == "Emergency") {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ReportPage(id: message.data["id"], uid: message.data["uid"])),
+            builder: (context) => EmergencyPage(
+                id: message.data["id"], uid: message.data["uid"])),
+      );
+    } else if (message.data["type"] == "Report") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ViewReportPage(
+                id: message.data["id"], uid: message.data["uid"])),
       );
     }
     return;
