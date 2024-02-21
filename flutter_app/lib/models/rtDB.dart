@@ -21,4 +21,28 @@ class RtdbHelper {
       print('Error adding user with coordinates: $error');
     }
   }
+
+  Future<List<Map<String, dynamic>>> getUsersWithCoordinates(List<String> userIds) async {
+    List<Map<String, dynamic>> userList = [];
+    try {
+      for (String uid in userIds) {
+        // Fetch each user by their UID
+        DatabaseReference userRef = _database.child('users/$uid');
+        DataSnapshot snapshot = await userRef.get();
+
+        if (snapshot.exists) {
+          Map<dynamic, dynamic> userData = snapshot.value as Map<dynamic, dynamic>;
+          Map<String, dynamic> userMap = {
+            "uid": uid,
+            "latitude": userData["latitude"],
+            "longitude": userData["longitude"]
+          };
+          userList.add(userMap);
+        }
+      }
+    } catch (error) {
+      print('Error retrieving users with coordinates: $error');
+    }
+    return userList;
+  }
 }
