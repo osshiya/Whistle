@@ -65,7 +65,17 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SettingsPage()),
-                );
+                ).then((_) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => const HomePage(
+                        selectedIndex: 3,
+                      ),
+                    ),
+                    (route) => false,
+                  );
+                });
               },
             ),
           ],

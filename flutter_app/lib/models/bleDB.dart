@@ -216,14 +216,16 @@ class FirebaseHelper {
     }
   }
 
-  Future<void> storeData(String uid, String type, int timestamp) async {
+  Future<String?> storeData(String uid, String type, int timestamp) async {
     try {
-      await _firestore.collection('users/$uid/$type').doc().set({
+      DocumentReference docRef =
+          await _firestore.collection('users/$uid/$type').add({
         'type': type[0].toUpperCase() + type.substring(1),
         'user': uid,
         'timestamp': timestamp
       });
-      sendPushMessage(uid, type);
+
+      return docRef.id;
     } catch (e) {
       print('Error storing data: $e');
     }

@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           const ActivitySection(name: "Recent Activity"),
-          Lists(dbBleHelper: dbBleHelper),
+          Lists(dbAuthHelper: dbAuthHelper, dbBleHelper: dbBleHelper),
         ],
       ),
     );
@@ -209,30 +209,37 @@ class _ActivitySectionState extends State<ActivitySection> {
 }
 
 class Lists extends StatelessWidget {
+  final AuthDB.FirebaseHelper dbAuthHelper;
   final BleDB.FirebaseHelper dbBleHelper;
 
-  const Lists({super.key, required this.dbBleHelper});
+  const Lists(
+      {super.key, required this.dbAuthHelper, required this.dbBleHelper});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: dbBleHelper.getStoredActivities(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(), // While data is loading
-            );
-          }
-          if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
-          if (!snapshot.hasData) {
-            return const Text('No data available');
-          }
-          List<ListItemData> items = snapshot.data!.map((data) {
-            String title = data['type'] ?? '';
+        child: FutureBuilder<List<Map<String, dynamic>>?>(
+      future: dbBleHelper.getStoredActivities(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(), // While data is loading
+          );
+        }
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        if (!snapshot.hasData) {
+          return const Text('No data available');
+        }
+
+        // Use Future.wait to await the list of futures
+        return FutureBuilder<List<ListItemData>>(
+          future: Future.wait(snapshot.data!.map((data) async {
+            String title = data['title'] ?? data['type'] ?? '';
             String uid = data['user'] ?? '';
+            String username =
+                await dbAuthHelper.getUsername(data['user']) ?? '';
             int? timestamp;
             if (data['timestamp'] is int) {
               timestamp = data['timestamp'];
@@ -245,14 +252,30 @@ class Lists extends StatelessWidget {
             return ListItemData(
                 id: data['id'],
                 uid: uid,
+                username: username,
                 title: title,
                 time: formattedTime,
                 type: data['type']);
-          }).toList();
-          return ListSection(items: items);
-        },
-      ),
-    );
+          }).toList()),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            if (!snapshot.hasData) {
+              return const Text('No data available');
+            }
+
+            // Return your ListSection widget with the list of ListItemData
+            return ListSection(items: snapshot.data!);
+          },
+        );
+      },
+    ));
   }
 }
 
@@ -289,7 +312,7 @@ class ListSection extends StatelessWidget {
             ],
           ),
           subtitle: Text(
-            items[index].uid,
+            items[index].username,
             textAlign: TextAlign.left,
             style: const TextStyle(
               color: Colors.grey,
@@ -323,6 +346,7 @@ class ListSection extends StatelessWidget {
 class ListItemData {
   final String id;
   final String uid;
+  final String username;
   final String title;
   final String time;
   final String type;
@@ -330,6 +354,7 @@ class ListItemData {
   ListItemData(
       {required this.id,
       required this.uid,
+      required this.username,
       required this.title,
       required this.time,
       required this.type});
