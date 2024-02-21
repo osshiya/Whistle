@@ -5,7 +5,7 @@ import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/models/rtDB.dart' as rtDB;
 import 'package:flutter_app/pages/emergency.dart';
 import 'package:flutter_app/pages/report.dart';
-import 'package:flutter_app/pages/services.dart';
+import 'package:flutter_app/utils/services.dart';
 import 'package:flutter_app/utils/formatter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             },
           ),
-          const ActivitySection(name: "Recent Activity"),
           Lists(dbAuthHelper: dbAuthHelper, dbBleHelper: dbBleHelper),
         ],
       ),
@@ -235,63 +234,88 @@ class Lists extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: FutureBuilder<List<Map<String, dynamic>>?>(
-      future: dbBleHelper.getStoredActivities(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(), // While data is loading
-          );
-        }
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
-        if (!snapshot.hasData) {
-          return const Text('No data available');
-        }
+        child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 0),
+            padding: EdgeInsets.all(13.0),
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 0,
+                  blurRadius: 6.4,
+                  offset: Offset(0, 3),
+                ),
+              ],
+              borderRadius: BorderRadius.circular(4.0),
+              color: Colors.white,
+            ),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const ActivitySection(name: "Recent Activity"),
+                  Expanded(
+                      child: FutureBuilder<List<Map<String, dynamic>>?>(
+                    future: dbBleHelper.getStoredActivities(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child:
+                              CircularProgressIndicator(), // While data is loading
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData) {
+                        return const Text('No data available');
+                      }
 
-        // Use Future.wait to await the list of futures
-        return FutureBuilder<List<ListItemData>>(
-          future: Future.wait(snapshot.data!.map((data) async {
-            String title = data['title'] ?? data['type'] ?? '';
-            String uid = data['user'] ?? '';
-            String username = await dbAuthHelper.getUsername(data['user']);
-            int? timestamp;
-            if (data['timestamp'] is int) {
-              timestamp = data['timestamp'];
-            } else if (data['timestamp'] is String) {
-              timestamp = int.tryParse(data['timestamp']);
-            }
+                      // Use Future.wait to await the list of futures
+                      return FutureBuilder<List<ListItemData>>(
+                        future: Future.wait(snapshot.data!.map((data) async {
+                          String title = data['title'] ?? data['type'] ?? '';
+                          String uid = data['user'] ?? '';
+                          String username =
+                              await dbAuthHelper.getUsername(data['user']);
+                          int? timestamp;
+                          if (data['timestamp'] is int) {
+                            timestamp = data['timestamp'];
+                          } else if (data['timestamp'] is String) {
+                            timestamp = int.tryParse(data['timestamp']);
+                          }
 
-            String? formattedTime = formatTimestamp(timestamp!);
+                          String? formattedTime = formatTimestamp(timestamp!);
 
-            return ListItemData(
-                id: data['id'],
-                uid: uid,
-                username: username,
-                title: title,
-                time: formattedTime,
-                type: data['type']);
-          }).toList()),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-            if (!snapshot.hasData) {
-              return const Text('No data available');
-            }
+                          return ListItemData(
+                              id: data['id'],
+                              uid: uid,
+                              username: username,
+                              title: title,
+                              time: formattedTime,
+                              type: data['type']);
+                        }).toList()),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
+                          if (!snapshot.hasData) {
+                            return const Text('No data available');
+                          }
 
-            // Return your ListSection widget with the list of ListItemData
-            return ListSection(items: snapshot.data!);
-          },
-        );
-      },
-    ));
+                          // Return your ListSection widget with the list of ListItemData
+                          return ListSection(items: snapshot.data!);
+                        },
+                      );
+                    },
+                  ))
+                ])));
   }
 }
 

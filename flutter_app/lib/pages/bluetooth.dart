@@ -3,7 +3,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:async';
 import 'package:flutter_app/utils/bluetooth_handler.dart';
 import 'package:flutter_app/screens/bluetooth_off_screen.dart';
-import 'package:flutter_app/pages/services.dart';
+import 'package:flutter_app/utils/services.dart';
 
 class BLEPage extends StatefulWidget {
   static const title = 'Connect to BLE Device';

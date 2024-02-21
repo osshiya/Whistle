@@ -79,6 +79,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ],
+          backgroundColor: Color(0xFFF5F7F9),
         );
         break;
       case 1:
@@ -93,30 +94,7 @@ class _HomePageState extends State<HomePage> {
         break;
       case 3:
         appBar = AppBar(
-          title: const Text(ReportScreen.title),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.add),
-              tooltip: "New Report",
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CreateReportPage()),
-                ).then((_) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext context) => const HomePage(
-                        selectedIndex: 3,
-                      ),
-                    ),
-                    (route) => false,
-                  );
-                });
-              },
-            ),
-          ],
+          backgroundColor: Color(0xFFF5F7F9),
         );
         break;
       default:
@@ -124,6 +102,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
+      backgroundColor: Color(0xFFF5F7F9),
       appBar: appBar,
       body: _pageOptions[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
