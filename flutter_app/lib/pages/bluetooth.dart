@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
-import 'dart:io';
 import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter_app/utils/bluetooth_handler.dart';
 import 'package:flutter_app/screens/bluetooth_off_screen.dart';
 import 'package:flutter_app/pages/services.dart';
@@ -56,7 +52,6 @@ class _BLEPageState extends State<BLEPage> {
         foregroundColor: Colors.white,
         backgroundColor: Colors.lightBlue,
       ),
-      // extendBodyBehindAppBar: true,
       body: _adapterState == BluetoothAdapterState.on
           ? ScanScreen()
           : BluetoothOffScreen(adapterState: _adapterState),
@@ -72,7 +67,7 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
-  static const deviceName = "CSC2106-BLE#01";
+  static const deviceName = "BLE#01";
   List<BluetoothDevice> _systemDevices = [];
   List<ScanResult> _scanResults = [];
   bool _isScanning = false;
@@ -124,8 +119,6 @@ class _ScanScreenState extends State<ScanScreen> {
     }
     try {
       await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
-      // _scanResults = FlutterBluePlus.lastScanResults;
-      // print(_scanResults.length);
     } catch (e) {
       _showBluetoothStatusSnackbar("Start Scan Error:", e);
     }
@@ -155,29 +148,25 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> connectToDevice(BluetoothDevice device) async {
     try {
       await device.connectAndUpdateStream();
-      // Connection successful, update UI or show a message
-      setState(() {
-        // Update UI if necessary
-      });
+      // Connection successful
       _showBluetoothStatusSnackbar("Connected to ${device.platformName}", null);
     } catch (e) {
       _showBluetoothStatusSnackbar(
           "Failed to connect to ${device.platformName}", e);
     }
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => BLEServicesPage(device: device,)),
-      );
-
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BLEServicesPage(
+                device: device,
+              )),
+    );
+  }
 
   Future<void> disconnectFromDevice(BluetoothDevice device) async {
     try {
       await device.disconnectAndUpdateStream();
-      // Disconnection successful, update UI or show a message
-      setState(() {
-        // Update UI if necessary
-      });
+      // Disconnection successful
       _showBluetoothStatusSnackbar(
           "Disconnected from ${device.platformName}", null);
     } catch (e) {
@@ -222,9 +211,6 @@ class _ScanScreenState extends State<ScanScreen> {
               ? 'Stop Scanning'
               : 'Start Scanning'),
         ),
-        // RefreshIndicator(
-        //   onRefresh: onRefresh,
-        //   child:
         Expanded(
           child: ListView.builder(
             itemCount: _scanResults.length,
@@ -246,7 +232,6 @@ class _ScanScreenState extends State<ScanScreen> {
             },
           ),
         ),
-        // ),
       ],
     ));
   }

@@ -17,7 +17,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   late AuthDB.FirebaseHelper dbAuthHelper;
   late FriendDB.FirebaseHelper dbFriendHelper;
   TextEditingController searchController = TextEditingController();
-  List<String>? friendsList = [];
+  List<Map<String, dynamic>>? friendsList = [];
 
   @override
   void initState() {
@@ -30,154 +30,165 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   Future<void> _loadFriends() async {
     String? uid = await dbAuthHelper.getStoredUid();
-
-    if (uid != null) {
-
-      List<String> friends = await dbFriendHelper.getFriends(uid);
-      setState(() {
-        friendsList = friends;
-      });
-    } else {
-      print('Error: User email is null');
-    }
+    List<Map<String, dynamic>> friends = await dbFriendHelper.getFriends(uid);
+    setState(() {
+      friendsList = friends;
+    });
   }
 
   Future<void> _deleteFriend(String friendEmail) async {
-    // Implement your delete logic here
-    // For example, dbHelper.deleteFriend(friendEmail);
     String? myEmail = await dbAuthHelper.getStoredEmail();
 
-    Map<String, dynamic>? friendData = await dbFriendHelper.getUserByEmail(friendEmail);
+    Map<String, dynamic>? friendData =
+        await dbFriendHelper.getUserByEmail(friendEmail);
     if (friendData != null && friendData.isNotEmpty) {
       // Extract the 'friends' array from friendData
-      List<String> friendsList2 = List<String>.from(friendData['friends'] ?? []);
-      friendsList2!.remove(myEmail);
-
-      await dbFriendHelper.updateFriendsList(friendEmail, friendsList2!);
-      // Now you can use the friendsList
+      List<Map<String, dynamic>> friendsList2 =
+          List<Map<String, dynamic>>.from(friendData['friends'] ?? []);
+      friendsList2.removeWhere((friend) => friend['email'] == myEmail);
+      await dbFriendHelper.updateFriendsList(friendEmail, friendsList2);
       print("Friends List: $friendsList");
     } else {
-      // No user found with the specified email
       print("No user found with email: $friendEmail");
     }
-    friendsList!.remove(friendEmail);
+    friendsList!.removeWhere((friend) => friend['email'] == friendEmail);
     await dbFriendHelper.updateFriendsList(myEmail, friendsList!);
-
-    // Update the UI after deletion
     await _loadFriends();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          FutureBuilder<String>(
-            future: dbAuthHelper.getStoredEmail(), // Replace 'uid' with your actual UID
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                String? userData = snapshot.data;
+        body: Padding(
+            padding: const EdgeInsets.only(left: 6),
+            child: Column(children: [
+              // Add Friend
+              FutureBuilder<String>(
+                future: dbAuthHelper.getStoredEmail(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    String? userData = snapshot.data;
 
-                return Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: searchController,
-                          decoration: InputDecoration(
-                            hintText: "Write friend's email",
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextField(
+                              controller: searchController,
+                              decoration: InputDecoration(
+                                hintText: "Search Friend by Email",
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () async {
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () async {
+                            String friendEmail = searchController.text.trim();
 
-                        String friendEmail = searchController.text.trim();
+                            if (friendEmail.isNotEmpty) {
+                              try {
+                                String? email = userData;
+                                Map<String, dynamic>? friendData =
+                                    await dbFriendHelper
+                                        .getUserByEmail(friendEmail);
 
-                        if (friendEmail.isNotEmpty) {
-                          try {
-                            String? email = userData;
-                            Map<String, dynamic>? friendData = await dbFriendHelper.getUserByEmail(friendEmail);
-
-                            if (friendData != null && friendData.isNotEmpty) {
-                              await dbFriendHelper.addFriendByEmail(email!, friendEmail);
-                              await dbFriendHelper.addFriendByEmail(friendEmail, email);
-                              await _loadFriends();
+                                if (friendData != null &&
+                                    friendData.isNotEmpty) {
+                                  await dbFriendHelper.addFriendByEmail(
+                                      email!, friendEmail);
+                                  await dbFriendHelper.addFriendByEmail(
+                                      friendEmail, email);
+                                  await _loadFriends();
+                                } else {
+                                  print(
+                                      "No user found with email: $friendEmail");
+                                }
+                              } catch (e) {
+                                print("Error adding friend: $e");
+                              }
                             } else {
-                              // No user found with the specified email
-                              print("No user found with email: $friendEmail");
+                              print("Please enter a friend's email");
                             }
-                          } catch (e) {
-                            // Handle any errors that may occur during the process
-                            print("Error adding friend: $e");
-                          }
-                        } else {
-                          // Handle the case where the email is empty
-                          print("Please enter a friend's email");
-                        }
-                      },
-                    ),
-                  ],
-                );
-              }
-            },
-          ),
-          Expanded(
-            child: FutureBuilder(
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  if (friendsList == null || friendsList!.isEmpty) {
-                    return Center(
-                      child: Text('No friends yet'),
+                          },
+                        ),
+                      ],
                     );
                   }
+                },
+              ),
 
-                  return ListView.builder(
-                    itemCount: friendsList!.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        margin: EdgeInsets.all(8.0),
-                        child: ListTile(
-                          title: Text(friendsList![index]),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () {
-                              _showDeleteConfirmationDialog(friendsList![index]);
-                            },
-                          ),
-                        ),
+              // Friendlist
+              Expanded(
+                child: FutureBuilder(
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
                       );
-                    },
-                  );
-                }
-              },
-              future: Future.value(null), // Replace with your actual future function to get friends
-            ),
-          ),
-        ],
-      ),
-    );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      if (friendsList == null || friendsList!.isEmpty) {
+                        return Center(
+                          child: Text('No friends yet'),
+                        );
+                      }
+                      return ListView.builder(
+                        itemCount: friendsList!.length,
+                        itemBuilder: (context, index) {
+                          return FutureBuilder<String?>(
+                            future: dbAuthHelper
+                                .getUsername(friendsList![index]['uid']),
+                            builder: (context, usernameSnapshot) {
+                              if (usernameSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (usernameSnapshot.hasError) {
+                                return Text('Error: ${usernameSnapshot.error}');
+                              } else {
+                                String? username = usernameSnapshot.data;
+                                return Card(
+                                  margin: EdgeInsets.all(8.0),
+                                  child: ListTile(
+                                    title: Text(username ?? ''),
+                                    trailing: IconButton(
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () {
+                                        _showDeleteConfirmationDialog(username!,
+                                            friendsList![index]['email']);
+                                      },
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        },
+                      );
+                    }
+                  },
+                  future: Future.value(null),
+                ),
+              ),
+            ])));
   }
 
-
-  Future<void> _showDeleteConfirmationDialog(String friendEmail) async {
+  Future<void> _showDeleteConfirmationDialog(
+      String friendName, String friendEmail) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Delete Friend'),
-          content: Text('Are you sure you want to delete $friendEmail?'),
+          content: Text('Are you sure you want to delete $friendName?'),
           actions: [
             TextButton(
               onPressed: () {

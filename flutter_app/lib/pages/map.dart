@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/screens/map_screen.dart';
 
-
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
 
@@ -16,7 +15,7 @@ class _MapPageState extends State<MapPage> {
       appBar: AppBar(
         title: Text('Map Page'),
       ),
-      body: MapScreen(), // Use MapScreen here
+      body: MapScreen(),
     );
   }
 }

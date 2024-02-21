@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_app/models/friendDB.dart' as Friend;
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
 class FirebaseHelper {
   Future<String> getStoredUid() async {
@@ -19,10 +22,10 @@ class FirebaseHelper {
 
   Future<String> getStoredEmail() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedEmail= prefs.getString('email');
+    String? storedEmail = prefs.getString('email');
 
     if (storedEmail != null) {
-      print('email: $storedEmail');
+      // print('email: $storedEmail');
     } else {
       print('Email not found in SharedPreferences');
     }
@@ -36,13 +39,36 @@ class FirebaseHelper {
     if (snapshot.exists) {
       Map<String, dynamic>? data = snapshot.data();
 
-      if (data != null && data.containsKey('username')) {
-        return data['username'].toString();
+      if (data != null && data.containsKey('name')) {
+        return data['name'].toString();
+      } else {
+        // Return an empty string if not found
+        print('Username not found');
+        return '';
       }
+    } else {
+      print('Snapshot is null or empty');
+      return '';
     }
+  }
 
-    // Return an empty string if the username is not found or if the snapshot doesn't exist
-    return '';
+  Future<String> getEmergencyNumber(String uid) async {
+    DocumentSnapshot<Map<String, dynamic>> snapshot =
+        await _firestore.collection('users').doc(uid).get();
+    if (snapshot.exists) {
+      Map<String, dynamic>? data = snapshot.data();
+
+      if (data != null && data.containsKey('emergencyNumber')) {
+        return data['emergencyNumber'].toString();
+      } else {
+        // Return an empty string if not found
+        print('Number not found');
+        return '';
+      }
+    } else {
+      print('Snapshot is null or empty');
+      return '';
+    }
   }
 
   Future<void> updateFriendsList(String email, List<String> updatedFriends) async {
@@ -95,34 +121,55 @@ class FirebaseHelper {
 
 
   Future<Map<String, dynamic>?> getUserData(String uid) async {
-    if (uid != null && uid.isNotEmpty) {
+    if (uid.isNotEmpty) {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
           await _firestore.collection('users').doc(uid).get();
-      // Further processing with the snapshot
 
       if (snapshot.exists) {
         Map<String, dynamic>? data = snapshot.data();
 
-        // if (data != null && data.containsKey('username')) {
-        //   return data['username'].toString();
-        // }
         return data;
       } else {
-        // Handle the case where uid is null or empty
         print('Snapshot is null or empty');
         return null;
       }
-
     } else {
-      // Handle the case where uid is null or empty
       print('UID is null or empty');
       return null;
     }
-    // Return an empty string if the username is not found or if the snapshot doesn't exist
-    // return '';
   }
 
-  // Assuming UserCredential is obtained after registration
+  Future<List<String>> getFriendsFCMTokens() async {
+    String uid = await getStoredUid();
+
+    List<Map<String, dynamic>> friends =
+        await Friend.FirebaseHelper().getFriends(uid);
+
+    List<String> fcms = [];
+
+    for (var friend in friends) {
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('users').doc(friend['uid']).get();
+
+      if (snapshot.exists) {
+        Map<String, dynamic>? data = snapshot.data();
+
+        if (data != null && data.containsKey('fcmToken')) {
+          fcms.add(data['fcmToken'].toString());
+        } else {
+          // Add an empty string if not found
+          print('fcmToken not found');
+          fcms.add('');
+        }
+      } else {
+        print('Snapshot does not exist');
+        fcms.add('');
+      }
+    }
+
+    return fcms;
+  }
+
   Future<void> storeUserData(String name, UserCredential user) async {
     try {
       final newUid = user.user!.uid;
@@ -135,5 +182,24 @@ class FirebaseHelper {
     } catch (e) {
       print('Error storing user data: $e');
     }
+  }
+
+  Future<void> saveFCMToken() async {
+    String uid = await getStoredUid();
+    String? fcmToken = await _firebaseMessaging.getToken();
+    if (fcmToken != null) {
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .update({'fcmToken': fcmToken});
+    }
+  }
+
+  Future<void> updateUserData(newName, newEmergencyNumber) async {
+    String uid = await getStoredUid();
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .update({'name': newName, 'emergencyNumber': newEmergencyNumber});
   }
 }

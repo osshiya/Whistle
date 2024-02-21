@@ -2,15 +2,17 @@ import 'dart:isolate';
 import 'dart:ui';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app/firebase_options.dart';
-
+import 'package:workmanager/workmanager.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_app/pages/report.dart';
+import 'package:flutter_app/pages/emergency.dart';
+import 'package:flutter_app/background_task.dart';
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
 import 'package:wakelock/wakelock.dart';
@@ -27,37 +29,46 @@ void backGroundTask(RootIsolateToken rootIsolateToken) async {
     wakeup: true);
 }
 
-import 'background_task.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  Workmanager().initialize(callbackDispatcher);
+  Workmanager().registerPeriodicTask(
+    'backgroundTask',
+    'backgroundTask',
+    frequency: const Duration(minutes: 10), // Run every 10 minutes
+  );
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
   await AndroidAlarmManager.initialize();
   RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   Isolate.spawn(backGroundTask, rootIsolateToken);
-
-
+  
+  NotificationSettings notificationSettings =
+      await firebaseMessaging.requestPermission();
+  if (notificationSettings.authorizationStatus ==
+      AuthorizationStatus.authorized) {
+    await firebaseMessaging.setAutoInitEnabled(true);
+    print('User granted permission');
+  } else if (notificationSettings.authorizationStatus ==
+      AuthorizationStatus.provisional) {
+    print('User granted provisional permission');
+  } else {
+    print('User declined or has not accepted permission');
+  }
 
   [
     Permission.location,
     Permission.storage,
     Permission.bluetooth,
     Permission.bluetoothConnect,
-    Permission.bluetoothScan
+    Permission.bluetoothScan,
+    Permission.notification
   ].request().then((status) {
-    runApp(const MyApp());
-  });
-}
-
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+    runApp(MaterialApp(
       title: 'GDSC 2024',
       theme: ThemeData(
         // This is the theme of your application.
@@ -78,15 +89,78 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AuthenticationWrapper(),
-    );
+      home: const MyApp(),
+    ));
+  });
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _MyApp();
+}
+
+class _MyApp extends State<MyApp> {
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type",
+    // navigate to a "type" screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    if (mounted) {
+      // Check if the state is still mounted
+      if (message.data["type"] == "Emergency") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                EmergencyPage(id: message.data["id"], uid: message.data["uid"]),
+          ),
+        );
+      } else if (message.data["type"] == "Report") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewReportPage(
+                id: message.data["id"], uid: message.data["uid"]),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Run code required to handle interacted messages in an async function
+    // as initState() must not be async
+    setupInteractedMessage();
+  }
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return AuthenticationWrapper();
   }
 }
 
 class AuthenticationWrapper extends StatelessWidget {
   const AuthenticationWrapper({Key? key}) : super(key: key);
 
-@override
+  @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -101,7 +175,6 @@ class AuthenticationWrapper extends StatelessWidget {
           // You can show a loading indicator if needed
           return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
-          // Handle error
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
           // User is logged in

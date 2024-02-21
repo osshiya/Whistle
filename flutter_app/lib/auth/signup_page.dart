@@ -1,18 +1,9 @@
 // signup_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-// import 'package:flutter/foundation.dart';
-// import 'package:familyjob/widgets.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:flutter_app/models/authDB.dart';
-
 import 'package:flutter_app/auth/login_page.dart';
-
-// import 'package:familyjob/auth/email_verification.dart';
 
 class SignupPage extends StatefulWidget {
   static const title = 'Sign Up';
@@ -28,7 +19,6 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   late FirebaseHelper dbHelper;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -51,13 +41,9 @@ class _SignupPageState extends State<SignupPage> {
         password: _passwordController.text,
       );
 
-      // // Send email verification after successful registration
-      // await sendEmailVerification();
-
-      // Store additional user data including the username
+      // Store additional user data to Firebase
       await dbHelper.storeUserData(_nameController.text.trim(), userCredential);
 
-      // Navigate to Login Page
       _navigateToLoginPage(context);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -66,11 +52,9 @@ class _SignupPageState extends State<SignupPage> {
         print('The account already exists for that email.');
       }
     } catch (e) {
-      // Handle sign-up errors
       print("Error during signup: $e");
     }
   }
-
 
   // Navigate to Login Page
   void _navigateToLoginPage(BuildContext context) {
@@ -81,8 +65,7 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   void _navigateBackToLoginPage(BuildContext context) {
-    Navigator.pop(
-        context); // Pop the current page (SignupPage) to go back to the previous page (LoginPage)
+    Navigator.pop(context);
   }
 
   @override
@@ -102,8 +85,8 @@ class _SignupPageState extends State<SignupPage> {
               controller: _nameController,
               decoration: const InputDecoration(
                 labelText: 'Name',
-                labelStyle:
-                TextStyle(color: Color(0xFF2B39C0)), // Change label color
+                labelStyle: TextStyle(color: Color(0xFF2B39C0)),
+                // Change label color
                 prefixIcon: Icon(Icons.lock, color: Color(0xFF2B39C0)),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFF2B39C0), width: 2.0),
@@ -116,8 +99,7 @@ class _SignupPageState extends State<SignupPage> {
               controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
-                labelStyle:
-                    TextStyle(color: Color(0xFF2B39C0)), // Change label color
+                labelStyle: TextStyle(color: Color(0xFF2B39C0)),
                 prefixIcon: Icon(Icons.lock, color: Color(0xFF2B39C0)),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFF2B39C0), width: 2.0),
@@ -131,8 +113,7 @@ class _SignupPageState extends State<SignupPage> {
               obscureText: !_revealPassword,
               decoration: InputDecoration(
                 labelText: 'Password',
-                labelStyle:
-                    TextStyle(color: Color(0xFF2B39C0)), // Change label color
+                labelStyle: TextStyle(color: Color(0xFF2B39C0)),
                 prefixIcon: Icon(Icons.lock, color: Color(0xFF2B39C0)),
                 suffixIcon: IconButton(
                     icon: Icon(
@@ -155,8 +136,8 @@ class _SignupPageState extends State<SignupPage> {
               obscureText: !_revealConfirmPassword,
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
-                labelStyle:
-                    TextStyle(color: Color(0xFF2B39C0)), // Change label color
+                labelStyle: TextStyle(color: Color(0xFF2B39C0)),
+                // Change label color
                 prefixIcon: Icon(Icons.lock, color: Color(0xFF2B39C0)),
                 suffixIcon: IconButton(
                     icon: Icon(
@@ -183,7 +164,6 @@ class _SignupPageState extends State<SignupPage> {
                 backgroundColor: const Color(0xFF2B39C0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(0),
-                  // side: BorderSide(color: Colors.blue),
                 ),
               ),
               onPressed: () {
@@ -191,7 +171,7 @@ class _SignupPageState extends State<SignupPage> {
                   // Passwords match, reveal the password
                   _signup(context);
                 } else {
-                  // Passwords do not match, show an error message or handle accordingly
+                  // Passwords do not match
                   print('Passwords do not match');
                 }
               },

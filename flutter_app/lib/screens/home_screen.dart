@@ -1,26 +1,13 @@
 // home_screen.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'dart:math';
-
-// import 'package:flutter/foundation.dart';
-// import 'package:familyjob/widgets.dart';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'package:flutter_app/features/tasks_history.dart';
-import 'package:flutter_app/models/rtDB.dart' as rtDB;
 import 'package:flutter_app/models/authDB.dart' as AuthDB;
 import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/models/rtDB.dart' as rtDB;
-
+import 'package:flutter_app/pages/emergency.dart';
+import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/pages/services.dart';
-import 'package:flutter_app/pages/settings.dart';
-import 'package:wakelock/wakelock.dart';
-
-import '../BackgroundTask.dart';
+import 'package:flutter_app/utils/formatter.dart';
 
 class HomeScreen extends StatefulWidget {
   static const title = 'Home';
@@ -44,29 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
     rtdbHelper = rtDB.RtdbHelper();
     dbAuthHelper = AuthDB.FirebaseHelper();
     dbBleHelper = BleDB.FirebaseHelper();
-    _getCurrentCountry();
-
+    dbAuthHelper.saveFCMToken();
   }
-  
-  Future<void> _getCurrentCountry() async {
-    try {
-      String? currentCountry = await LocationService.getCurrentCountry();
-      if (mounted) { // Check if the widget is still mounted
-        setState(() {
-          country = currentCountry;
-        });
-      }
-    } catch (e) {
-      print('Error getting current country: $e');
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0),
-      // Adjust the value as needed
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,104 +69,103 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       return TitleSection(
                         name: name,
-                        country: country ?? 'Loading...',
                       );
-                      // }
                     }
                   },
                 );
               }
             },
           ),
-          // const ButtonSection(),
           const ActivitySection(name: "Recent Activity"),
-          Lists(dbBleHelper: dbBleHelper),
+          Lists(dbAuthHelper: dbAuthHelper, dbBleHelper: dbBleHelper),
         ],
       ),
     );
   }
 }
 
-class TitleSection extends StatelessWidget {
+class TitleSection extends StatefulWidget {
   const TitleSection({
-    super.key,
+    Key? key,
     required this.name,
-    required this.country,
-  });
+  }) : super(key: key);
 
   final String name;
-  final String country;
+
+  @override
+  State<TitleSection> createState() => _TitleSectionState();
+}
+
+class _TitleSectionState extends State<TitleSection> {
+  late Future<String?> currentCountryFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    currentCountryFuture = getCurrentCountry();
+  }
+
+  Future<String?> getCurrentCountry() async {
+    try {
+      String? currentCountry = await LocationService.getCurrentCountry();
+      return currentCountry;
+    } catch (e) {
+      print('Error getting current country: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 80.0 / 2,
-            backgroundColor: _randomColor(),
-            child: Text(
-              getInitials(name),
-              style: const TextStyle(
-                fontSize: 80.0 * 0.4,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          SizedBox(width: 16), // Adjust spacing as needed
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                pascalCase(name),
-                style: const TextStyle(
-                  fontSize: 80.0 * 0.3,
-                  fontWeight: FontWeight.bold,
+    return FutureBuilder<String?>(
+      future: currentCountryFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          String? currentCountry = snapshot.data;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 80.0 / 2,
+                  backgroundColor: randomColor(),
+                  child: Text(
+                    getInitials(widget.name),
+                    style: const TextStyle(
+                      fontSize: 80.0 * 0.4,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
-              ButtonWithText(
-                color: Color(0xFF838C98),
-                icon: Icons.location_on,
-                label: country,
-              ),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  String pascalCase(String name) {
-    List<String> words = name.split(' ');
-    String camelCaseString = '';
-    for (int i = 0; i < words.length; i++) {
-      camelCaseString +=
-          '${words[i][0].toUpperCase()}${words[i].substring(1)} ';
-    }
-    return camelCaseString;
-  }
-
-  String getInitials(String name) {
-    List<String> words = name.split(' ');
-    String initials = '';
-    for (String word in words) {
-      if (word.isNotEmpty) {
-        initials += word[0];
-      }
-    }
-    return initials.toUpperCase();
-  }
-
-  Color _randomColor() {
-    Random random = Random();
-    return Color.fromARGB(
-      255,
-      random.nextInt(123 - 0 + 1) + 0,
-      random.nextInt(123 - 0 + 1) + 0,
-      random.nextInt(123 - 0 + 1) + 0,
+                SizedBox(width: 16),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      pascalCase(widget.name),
+                      style: const TextStyle(
+                        fontSize: 80.0 * 0.3,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    ButtonWithText(
+                      color: Color(0xFF838C98),
+                      icon: Icons.location_on,
+                      label: currentCountry ?? 'Unknown',
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -244,18 +214,9 @@ class ActivitySection extends StatefulWidget {
 }
 
 class _ActivitySectionState extends State<ActivitySection> {
-// Navigate to Activity History Page
-  void _navigateToActivityHistory() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SettingsPage()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Text(
-      // onPressed: _navigateToActivityHistory,
       widget.name,
       style: const TextStyle(
         fontSize: 24,
@@ -266,31 +227,36 @@ class _ActivitySectionState extends State<ActivitySection> {
 }
 
 class Lists extends StatelessWidget {
+  final AuthDB.FirebaseHelper dbAuthHelper;
   final BleDB.FirebaseHelper dbBleHelper;
 
-  const Lists({super.key, required this.dbBleHelper});
+  const Lists(
+      {super.key, required this.dbAuthHelper, required this.dbBleHelper});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: dbBleHelper.getStoredActivities(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(), // While data is loading
-            );
-          }
-          if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
-          if (!snapshot.hasData) {
-            return const Text('No data available');
-          }
-          List<ListItemData> items = snapshot.data!.map((data) {
-            // Assuming your Firebase document fields are 'title', 'subtitle', and 'time'
-            String title = data['type'] ?? '';
-            String subtitle = data['user'] ?? '';
+        child: FutureBuilder<List<Map<String, dynamic>>?>(
+      future: dbBleHelper.getStoredActivities(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(), // While data is loading
+          );
+        }
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        if (!snapshot.hasData) {
+          return const Text('No data available');
+        }
+
+        // Use Future.wait to await the list of futures
+        return FutureBuilder<List<ListItemData>>(
+          future: Future.wait(snapshot.data!.map((data) async {
+            String title = data['title'] ?? data['type'] ?? '';
+            String uid = data['user'] ?? '';
+            String username = await dbAuthHelper.getUsername(data['user']);
             int? timestamp;
             if (data['timestamp'] is int) {
               timestamp = data['timestamp'];
@@ -298,27 +264,35 @@ class Lists extends StatelessWidget {
               timestamp = int.tryParse(data['timestamp']);
             }
 
-            DateTime? dateTime;
-            String? formattedTime = "";
-            if (timestamp != null) {
-              dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
-
-              // Format DateTime
-              formattedTime = dateTime != null
-                  ? DateFormat('MMM dd, hh:mm a').format(dateTime)
-                  : '';
-            }
+            String? formattedTime = formatTimestamp(timestamp!);
 
             return ListItemData(
-              title: title,
-              subtitle: subtitle,
-              time: formattedTime,
-            );
-          }).toList();
-          return ListSection(items: items);
-        },
-      ),
-    );
+                id: data['id'],
+                uid: uid,
+                username: username,
+                title: title,
+                time: formattedTime,
+                type: data['type']);
+          }).toList()),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            if (!snapshot.hasData) {
+              return const Text('No data available');
+            }
+
+            // Return your ListSection widget with the list of ListItemData
+            return ListSection(items: snapshot.data!);
+          },
+        );
+      },
+    ));
   }
 }
 
@@ -349,18 +323,37 @@ class ListSection extends StatelessWidget {
                 items[index].time,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: Colors.grey, // Adjust color as needed
+                  color: Colors.grey,
                 ),
               ),
             ],
           ),
           subtitle: Text(
-            items[index].subtitle,
+            items[index].username,
             textAlign: TextAlign.left,
             style: const TextStyle(
-              color: Colors.grey, // Adjust color as needed
+              color: Colors.grey,
             ),
           ),
+          onTap: () {
+            if (items[index].type == "Report") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ViewReportPage(
+                          id: items[index].id,
+                          uid: items[index].uid,
+                        )),
+              ).then((_) {});
+            } else if (items[index].type == "Emergency") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EmergencyPage(
+                        id: items[index].id, uid: items[index].uid)),
+              ).then((_) {});
+            }
+          },
         );
       },
     );
@@ -368,10 +361,18 @@ class ListSection extends StatelessWidget {
 }
 
 class ListItemData {
+  final String id;
+  final String uid;
+  final String username;
   final String title;
-  final String subtitle;
   final String time;
+  final String type;
 
   ListItemData(
-      {required this.title, required this.subtitle, required this.time});
+      {required this.id,
+      required this.uid,
+      required this.username,
+      required this.title,
+      required this.time,
+      required this.type});
 }

@@ -1,15 +1,10 @@
 // login_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-// import 'package:flutter/foundation.dart';
-// import 'package:familyjob/widgets.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:flutter_app/auth/signup_page.dart';
 import 'package:flutter_app/auth/reset_password.dart';
-
 import 'package:flutter_app/pages/home.dart';
 
 class LoginPage extends StatefulWidget {
@@ -124,8 +119,8 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _emailController,
                     decoration: const InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(
-                          color: Color(0xFF2B39C0)), // Change label color
+                      labelStyle: TextStyle(color: Color(0xFF2B39C0)),
+                      // Change label color
                       prefixIcon: Icon(Icons.email, color: Color(0xFF2B39C0)),
                       enabledBorder: UnderlineInputBorder(
                         borderSide:
@@ -138,8 +133,8 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _passwordController,
                     decoration: const InputDecoration(
                       labelText: 'Password',
-                      labelStyle: TextStyle(
-                          color: Color(0xFF2B39C0)), // Change label color
+                      labelStyle: TextStyle(color: Color(0xFF2B39C0)),
+                      // Change label color
                       prefixIcon: Icon(Icons.lock, color: Color(0xFF2B39C0)),
                       enabledBorder: UnderlineInputBorder(
                         borderSide:
