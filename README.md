@@ -11,9 +11,10 @@ Despite the advancements in civilization, discrimination, bullying, and various 
     - Seamless connection between the mobile app and the IoT device using Bluetooth Low Energy (BLE) for efficient, low-power communication.
     - Allows users to create reports or trigger emergencies via button presses on the IoT device.
 3. Reporting Features
+    - Create Report: In the event of a minor accident or incident, it can be challenging to remember every detail. The reporting feature allows users to create a record using the IoT device immediately, then document important information later. This helps users capture accurate details and maintain a record of the event for future reference.
     - View: Users can view their own reports and reports from their close contacts, enhancing awareness and support within their network.
     - Edit Later: Users can update or modify their reports after triggering, allowing for the addition of new information or clarification of existing details.
-4. Emergency Response
+5. Emergency Response
     - Emergency Contact: Friends can facilitates immediate actions such as calling emergency services or notifying the user's predefined contacts, enabling a swift response to urgent situations.
 6. Mapping and Localization
     - Real-time Location Sharing: Utilizes Google Maps to display the real-time locations of users and their close contacts, providing geographical context to reports and emergencies.
