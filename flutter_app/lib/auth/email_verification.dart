@@ -12,7 +12,6 @@ Future<void> sendEmailVerification() async {
       print('Verification email sent to ${user.email}');
     } catch (e) {
       print('Error sending verification email: $e');
-      // Handle error sending verification email
     }
   }
 }

@@ -1,17 +1,9 @@
-// home_screen.dart
+// map_screen.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-// import 'package:flutter/foundation.dart';
-// import 'package:familyjob/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'package:flutter_app/features/tasks_history.dart';
-
 import 'package:flutter_app/models/authDB.dart';
 
 class MapScreen extends StatefulWidget {
@@ -28,6 +20,7 @@ class _MapScreenState extends State<MapScreen> {
   late FirebaseHelper dbHelper;
   late GoogleMapController mapController;
   late LatLng _center;
+
   @override
   void initState() {
     super.initState();
@@ -70,7 +63,7 @@ class _MapScreenState extends State<MapScreen> {
             bottom: 0,
             child: Container(
               padding: EdgeInsets.all(8.0),
-              color: Colors.white, // Set the color you want for the overlay
+              color: Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

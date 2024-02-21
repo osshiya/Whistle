@@ -1,16 +1,7 @@
-// home_screen.dart
+// report_screen.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
-// import 'package:flutter/foundation.dart';
-// import 'package:familyjob/widgets.dart';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:flutter_app/models/authDB.dart' as AuthDB;
-import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/pages/report.dart';
+import 'package:flutter_app/models/bleDB.dart' as BleDB;
 import 'package:flutter_app/utils/formatter.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -36,7 +27,6 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        // Adjust the value as needed
         child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +55,7 @@ class _ListsState extends State<Lists> {
 
   Future<void> _refreshList() async {
     setState(() {
-      _futureData = widget.dbBleHelper.getStoredReports();
+      _futureData = widget.dbBleHelper.getMyStoredReports();
     });
   }
 
@@ -77,7 +67,7 @@ class _ListsState extends State<Lists> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(), // While data is loading
+              child: CircularProgressIndicator(),
             );
           }
           if (snapshot.hasError) {
@@ -87,16 +77,20 @@ class _ListsState extends State<Lists> {
             return const Text('No data available');
           }
           List<ListItemData> items = snapshot.data!.map((data) {
-            // Assuming your Firebase document fields are 'title', 'subtitle', and 'time'
-            String title = data?['title'] ?? data?['type'] ?? '';
-            String subtitle = data?['desc'] ?? '';
-            int timestamp = data?['timestamp'] ?? '';
             String id = data['id'] ?? '';
+            String uid = data['user'] ?? '';
+            String title = data['title'] ?? data['type'] ?? '';
+            String subtitle = data['desc'] ?? '';
+            int timestamp = data['timestamp'] ?? '';
 
             String formattedTime = formatTimestamp(timestamp);
 
             return ListItemData(
-                title: title, subtitle: subtitle, time: formattedTime, id: id);
+                id: id,
+                uid: uid,
+                title: title,
+                subtitle: subtitle,
+                time: formattedTime);
           }).toList();
           return ListSection(items: items, refreshCallback: _refreshList);
         },
@@ -120,66 +114,67 @@ class ListSection extends StatefulWidget {
 }
 
 class _ListSectionState extends State<ListSection> {
-
   @override
   Widget build(BuildContext context) {
-    return
-      // RefreshIndicator(
-      // onRefresh: _refreshList,
-      // child:
-      ListView.builder(
-        itemCount: widget.items.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.items[index].title,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+    return ListView.builder(
+      itemCount: widget.items.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.items[index].title,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  widget.items[index].time,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey, // Adjust color as needed
-                  ),
-                ),
-              ],
-            ),
-            subtitle: Text(
-              widget.items[index].subtitle,
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                color: Colors.grey, // Adjust color as needed
               ),
+              Text(
+                widget.items[index].time,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+          subtitle: Text(
+            widget.items[index].subtitle,
+            textAlign: TextAlign.left,
+            style: const TextStyle(
+              color: Colors.grey,
             ),
-            onTap: () {
-             Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportPage(id: widget.items[index].id)),
-              ).then((_) {
-               widget.refreshCallback();
-              });
-            }, // Handle your onTap here.
-          );
-        },
-      // ),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ReportPage(
+                        id: widget.items[index].id,
+                        uid: widget.items[index].uid,
+                      )),
+            ).then((_) {
+              widget.refreshCallback();
+            });
+          },
+        );
+      },
     );
   }
 }
 
 class ListItemData {
+  final String id;
+  final String uid;
   final String title;
   final String subtitle;
   final String time;
-  final String id;
 
-  ListItemData(
-      {required this.title,
-      required this.subtitle,
-      required this.time,
-      required this.id});
+  ListItemData({
+    required this.id,
+    required this.uid,
+    required this.title,
+    required this.subtitle,
+    required this.time,
+  });
 }

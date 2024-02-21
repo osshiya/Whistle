@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
 import 'dart:io';
-
-import 'package:flutter_app/utils/snackbar.dart';
-
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_app/pages/bluetooth.dart';
+import 'package:flutter_app/utils/snackbar.dart';
 
 class BluetoothOnScreen extends StatelessWidget {
   const BluetoothOnScreen({Key? key, this.adapterState}) : super(key: key);

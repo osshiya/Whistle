@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_app/firebase_options.dart';
-import 'package:flutter_app/pages/report.dart';
-
-import 'package:workmanager/workmanager.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:workmanager/workmanager.dart';
+import 'package:flutter_app/firebase_options.dart';
 import 'package:flutter_app/auth/login_page.dart';
 import 'package:flutter_app/pages/home.dart';
+import 'package:flutter_app/pages/report.dart';
+import 'package:flutter_app/pages/emergency.dart';
 import 'package:flutter_app/background_task.dart';
 
 Future<void> main() async {
@@ -23,16 +21,15 @@ Future<void> main() async {
     frequency: const Duration(minutes: 10), // Run every 10 minutes
   );
 
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-  NotificationSettings notificationSettings  = await firebaseMessaging.requestPermission();
-  if (notificationSettings.authorizationStatus == AuthorizationStatus.authorized) {
+  NotificationSettings notificationSettings =
+      await firebaseMessaging.requestPermission();
+  if (notificationSettings.authorizationStatus ==
+      AuthorizationStatus.authorized) {
     await firebaseMessaging.setAutoInitEnabled(true);
-    // final fcmToken = await _firebaseMessaging.getToken();
-    // print("FCMToken $fcmToken");
     print('User granted permission');
   } else if (notificationSettings.authorizationStatus ==
       AuthorizationStatus.provisional) {
@@ -75,7 +72,6 @@ Future<void> main() async {
   });
 }
 
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -85,12 +81,12 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
   Future<void> setupInteractedMessage() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    // Get any messages which caused the application to open from a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
 
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
+    // If the message also contains a data property with a "type",
+    // navigate to a "type" screen
     if (initialMessage != null) {
       _handleMessage(initialMessage);
     }
@@ -101,15 +97,21 @@ class _MyApp extends State<MyApp> {
   }
 
   void _handleMessage(RemoteMessage message) {
-    if (message.data["type"] == "Report") {
-      print("HANDLED");
+    if (message.data["type"] == "Emergency") {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ReportPage(id: message.data["id"])),
+            builder: (context) => EmergencyPage(
+                id: message.data["id"], uid: message.data["uid"])),
+      );
+    } else if (message.data["type"] == "Report") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ViewReportPage(
+                id: message.data["id"], uid: message.data["uid"])),
       );
     }
-    // Navigator.pushNamed(context, "/report", arguments: {'id': message.data["id"]});
     return;
   }
 
@@ -147,7 +149,6 @@ class AuthenticationWrapper extends StatelessWidget {
           // You can show a loading indicator if needed
           return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
-          // Handle error
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
           // User is logged in

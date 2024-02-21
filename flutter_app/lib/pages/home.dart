@@ -1,15 +1,10 @@
 // home_page.dart
 import 'package:flutter/material.dart';
-// import 'package:flutter/foundation.dart';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:flutter_app/screens/home_screen.dart';
 import 'package:flutter_app/screens/map_screen.dart';
 import 'package:flutter_app/screens/report_screen.dart';
-import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/screens/friends_screen.dart';
+import 'package:flutter_app/pages/report.dart';
 import 'package:flutter_app/pages/bluetooth.dart';
 import 'package:flutter_app/pages/settings.dart';
 
@@ -36,7 +31,6 @@ class _HomePageState extends State<HomePage> {
     const FriendsScreen(),
     const MapScreen(),
     const ReportScreen(),
-    // const ProfileScreen()
   ];
 
   void _onItemTapped(int index) {
@@ -53,7 +47,6 @@ class _HomePageState extends State<HomePage> {
     switch (_selectedIndex) {
       case 0:
         appBar = AppBar(
-          // title: const Text(HomeScreen.title),
           actions: <Widget>[
             IconButton(
               icon: BLEPage.androidIcon,
@@ -61,9 +54,28 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const BLEPage()),
+                  MaterialPageRoute(builder: (context) => const BLEPage()),
                 );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              tooltip: "Settings",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
+                ).then((_) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => const HomePage(
+                        selectedIndex: 0,
+                      ),
+                    ),
+                    (route) => false,
+                  );
+                });
               },
             ),
           ],
@@ -92,11 +104,12 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(
                       builder: (context) => const CreateReportPage()),
                 ).then((_) {
-                  // setState((){});
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (BuildContext context) => const HomePage(selectedIndex: 3,),
+                      builder: (BuildContext context) => const HomePage(
+                        selectedIndex: 3,
+                      ),
                     ),
                     (route) => false,
                   );
@@ -132,10 +145,6 @@ class _HomePageState extends State<HomePage> {
             icon: ReportScreen.androidIcon,
             label: ReportScreen.title,
           ),
-          // BottomNavigationBarItem(
-          //   icon: HomeScreen.androidIcon,
-          //   label: HomeScreen.title,
-          // ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF2F7BEE),
