@@ -105,5 +105,5 @@ Make sure an Android emulator is running or a device is connected to your comput
 <img src="https://github.com/osshiya/GDSC-2024/assets/64403759/bd2a5cc4-15cf-4b83-84cd-e61c10fb9840" width="150">
 
 ## Contact
-- [osshiya](mailto:osshiya@gmail.com)
-- [chloeloh](mailto:chloe.r.loh@gmail.com)
+- [Shi Ya](mailto:osshiya@gmail.com)
+- [Chloe Loh](mailto:chloe.r.loh@gmail.com)
