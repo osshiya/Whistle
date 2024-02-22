@@ -20,8 +20,7 @@ void backGroundTask(RootIsolateToken rootIsolateToken) async {
 
   AndroidAlarmManager.periodic(const Duration(minutes: 15), 0,
       bg.BackgroundTask.updateCoordinatesIsolate,
-      exact: true,
-      wakeup: true);
+      exact: true, wakeup: true);
 }
 
 Future<void> main() async {
@@ -77,6 +76,7 @@ Future<void> main() async {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: const MyApp(),
     ));
   });

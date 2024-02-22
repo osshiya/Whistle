@@ -2,7 +2,8 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:label="flutter_app">
+        android:roundIcon="@mipmap/round_launcher"
+        android:label="Whistle">
 
         <service
             android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"

@@ -22,7 +22,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
   late AuthDB.FirebaseHelper dbAuthHelper;
   late BleDB.FirebaseHelper dbBleHelper;
   Map<String, dynamic>? _data;
-  late String username;
+  String username = '';
 
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
                 radius: 180.0 / 2,
                 backgroundColor: randomColor(),
                 child: Text(
-                  getInitials("name"),
+                  getInitials(username),
                   style: const TextStyle(
                     fontSize: 180.0 * 0.4,
                     fontWeight: FontWeight.bold,
@@ -107,11 +107,9 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
   Future<void> _retrieveData() async {
     try {
-      // Retrieve data from the database
       Map<String, dynamic>? data =
           await dbBleHelper.getStoredEmergency(widget.uid, widget.id);
       String name = await dbAuthHelper.getUsername(widget.uid);
-      print(name);
       setState(() {
         _data = data;
         username = name;
