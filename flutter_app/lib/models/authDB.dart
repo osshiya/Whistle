@@ -42,7 +42,6 @@ class FirebaseHelper {
       if (data != null && data.containsKey('name')) {
         return data['name'].toString();
       } else {
-        // Return an empty string if not found
         print('Username not found');
         return '';
       }
@@ -61,7 +60,6 @@ class FirebaseHelper {
       if (data != null && data.containsKey('emergencyNumber')) {
         return data['emergencyNumber'].toString();
       } else {
-        // Return an empty string if not found
         print('Number not found');
         return '';
       }
@@ -108,7 +106,6 @@ class FirebaseHelper {
         if (data != null && data.containsKey('fcmToken')) {
           fcms.add(data['fcmToken'].toString());
         } else {
-          // Add an empty string if not found
           print('fcmToken not found');
           fcms.add('');
         }

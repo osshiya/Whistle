@@ -40,7 +40,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
     Map<String, dynamic>? friendData =
         await dbFriendHelper.getUserByEmail(friendEmail);
     if (friendData != null && friendData.isNotEmpty) {
-      // Extract the 'friends' array from friendData
       List<Map<String, dynamic>> friendsList2 =
           List<Map<String, dynamic>>.from(friendData['friends'] ?? []);
       friendsList2.removeWhere((friend) => friend['email'] == myEmail);
@@ -60,7 +59,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
         body: Padding(
             padding: const EdgeInsets.only(left: 6),
             child: Column(children: [
-              // Add Friend
               FutureBuilder<String>(
                 future: dbAuthHelper.getStoredEmail(),
                 builder: (context, snapshot) {
@@ -190,14 +188,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Close the dialog
+                Navigator.pop(context);
               },
               child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 _deleteFriend(friendEmail);
-                Navigator.pop(context); // Close the dialog after deletion
+                Navigator.pop(context);
               },
               child: Text('Delete'),
             ),
