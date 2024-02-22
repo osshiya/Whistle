@@ -16,14 +16,11 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 void backGroundTask(RootIsolateToken rootIsolateToken) async {
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-  // Initialize Firebase in the background isolate
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Now, spawn another isolate for periodic tasks
   AndroidAlarmManager.periodic(const Duration(minutes: 15), 0,
       bg.BackgroundTask.updateCoordinatesIsolate,
-      exact: true, // Ensure precise timing
+      exact: true,
       wakeup: true);
 }
 

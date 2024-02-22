@@ -22,7 +22,7 @@ class MapScreen extends StatefulWidget {
 }
 Color generateColor(String input) {
   int hashCode = input.hashCode;
-  double hue = (hashCode % 360).toDouble(); // Ensure the hue is within [0, 360)
+  double hue = (hashCode % 360).toDouble();
   return HSLColor.fromAHSL(1.0, hue, 1.0, 0.5).toColor();
 }
 
@@ -56,17 +56,15 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-    // Dispose of the timer when the widget is disposed
     _updateTimer.cancel();
     super.dispose();
   }
 
-  // Function to update the map with the latest friend locations
   Future<void> _updateMap() async {
     try {
       String uid = await dbHelper.getStoredUid();
       friends = await friendsHelper.getFriends(uid);
-      friendsList.clear(); // Clear the existing list of friends
+      friendsList.clear();
 
       for (var userMap in friends) {
         String uid = userMap["uid"];
@@ -79,7 +77,7 @@ class _MapScreenState extends State<MapScreen> {
         friendsList.add(uid);
       }
 
-      _markers.clear(); // Clear existing markers
+      _markers.clear();
       friendsLocations = await rtdbHelper.getUsersWithCoordinates(friendsList);
 
       for (var friendsMap in friendsLocations) {
@@ -87,19 +85,11 @@ class _MapScreenState extends State<MapScreen> {
         double latitude = friendsMap["latitude"];
         double longitude = friendsMap["longitude"];
 
-        // Generate a consistent color based on the friend's UID
         Color friendColor = generateColor(friendUid);
         String friendName = await friendsNames
             .firstWhere((element) => element["uid"] == friendUid,
             orElse: () => {"name": ""})["name"];
 
-        // Use the color directly for the CircleAvatar
-        final CircleAvatar circleAvatar = CircleAvatar(
-          radius: 15,
-          backgroundColor: friendColor,
-        );
-
-        // Use the color directly for the marker
         final Marker marker = Marker(
           markerId: MarkerId(friendUid),
           position: LatLng(latitude, longitude),
@@ -144,7 +134,7 @@ class _MapScreenState extends State<MapScreen> {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       _center = LatLng(position.latitude, position.longitude);
-      _animateCameraToCenter(); // Animate the camera to the new position
+      _animateCameraToCenter();
       setState(() {});
     } catch (e) {
       print('Error getting current position: $e');
@@ -160,7 +150,6 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Your GoogleMap widget here...
           GoogleMap(
             onMapCreated: _onMapCreated,
             markers: _markers,
@@ -236,7 +225,6 @@ class _MapScreenState extends State<MapScreen> {
           child: FloatingActionButton(
             onPressed: () {
               setState(() {
-                // Toggle the visibility when the FAB is pressed
                 isFriendsListVisible = !isFriendsListVisible;
               });
             },

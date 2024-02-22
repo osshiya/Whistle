@@ -21,17 +21,13 @@ class BackgroundTask {
       try {
         await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
         log("Firebase initialized successfully");
-
-        // Initialize Firebase in the background task
         AuthDB.FirebaseHelper dbAuthHelper = AuthDB.FirebaseHelper();
         rtDB.RtdbHelper rtdbHelper = rtDB.RtdbHelper();
-        // Check if location services are enabled
         bool isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!isLocationServiceEnabled) {
           log('Location services are not enabled');
           return;
         }
-        // Get the current position
         Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
         );
