@@ -1,4 +1,9 @@
-# Whistle
+<h1 align='center'>
+    <img src="https://github.com/osshiya/GDSC-2024/assets/64403759/f3c53367-1c75-4f0c-97e8-089c76faad1f" width="128" height="128" />
+    <br>
+    Whistle
+</h1>
+
 Whistle integrates IoT and Google Technology with a push-button mechanism to address discrimination, bullying, and threats faced by vulnerable groups. This system empowers individuals to boost their personal safety, report potential threats, and alert trusted contacts without the need to navigate through a phone during urgent situations, thereby reducing crucial response time in emergencies. By ensuring accessible and efficient emergency assistance, we want to foster a safer urban environment where everyone can feel secure.
 
 ## Overview
