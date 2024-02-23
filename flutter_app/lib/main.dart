@@ -56,7 +56,7 @@ Future<void> main() async {
     Permission.notification
   ].request().then((status) {
     runApp(MaterialApp(
-      title: 'GDSC 2024',
+      title: 'Whistle',
       theme: ThemeData(
         // This is the theme of your application.
         //
