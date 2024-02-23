@@ -103,7 +103,9 @@ class _MapScreenState extends State<MapScreen> {
 
         _markers.add(marker);
       }
-
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      _center = LatLng(position.latitude, position.longitude);
       setState(() {});
     } catch (e) {
       print('Error updating map: $e');
