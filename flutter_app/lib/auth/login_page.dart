@@ -8,7 +8,7 @@ import 'package:flutter_app/auth/reset_password.dart';
 import 'package:flutter_app/pages/home.dart';
 
 class LoginPage extends StatefulWidget {
-  static const title = 'ProjectName';
+  static const title = 'Whistle';
   static const androidIcon = Icon(Icons.lock);
   static const iosIcon = Icon(CupertinoIcons.lock);
 
@@ -85,7 +85,8 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: const Text(
           LoginPage.title,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 35, letterSpacing: 1.2),
         ),
         centerTitle: true,
         foregroundColor: Colors.white,
@@ -93,109 +94,113 @@ class _LoginPageState extends State<LoginPage> {
       ),
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFF2B39C0),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Adjusted
-        children: [
-          Image.asset(
-            'assets/rafiki.png',
-            fit: BoxFit.fitWidth,
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(44.0),
-              margin: const EdgeInsets.only(top: 10.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(64.0),
-                  topRight: Radius.circular(64.0),
+      body: Padding(
+        padding: EdgeInsets.only(top: 40.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Adjusted
+          children: [
+            Image.asset(
+              'assets/rafiki.png',
+              fit: BoxFit.fitWidth,
+            ),
+            Expanded(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 44.0),
+                margin: const EdgeInsets.only(top: 10.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(64.0),
+                    topRight: Radius.circular(64.0),
+                  ),
+                  border: Border.all(color: Colors.white),
                 ),
-                border: Border.all(color: Colors.white),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      labelStyle: TextStyle(color: Color(0xFF2B39C0)),
-                      // Change label color
-                      prefixIcon: Icon(Icons.email, color: Color(0xFF2B39C0)),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color(0xFF2B39C0), width: 2.0),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10.0),
-                    ),
-                  ),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: TextStyle(color: Color(0xFF2B39C0)),
-                      // Change label color
-                      prefixIcon: Icon(Icons.lock, color: Color(0xFF2B39C0)),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color(0xFF2B39C0), width: 2.0),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10.0),
-                    ),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(40),
-                      foregroundColor: Colors.white,
-                      backgroundColor: const Color(0xFF2B39C0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0),
-                        // side: BorderSide(color: Colors.blue),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(color: Color(0xFF2B39C0)),
+                        // Change label color
+                        prefixIcon: Icon(Icons.email, color: Color(0xFF2B39C0)),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0xFF2B39C0), width: 2.0),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 10.0),
                       ),
                     ),
-                    onPressed: _login,
-                    child: const Text("Sign In"),
-                  ),
-                  // const SizedBox(height: 10),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      TextButton(
-                        onPressed: _navigateToSignupPage,
-                        child: const Text.rich(
-                          TextSpan(
-                            text: 'Don\'t have an account? ',
-                            style: TextStyle(color: Colors.black),
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: 'Sign up here',
-                                style: TextStyle(color: Color(0xFF2B39C0)),
-                              ),
-                            ],
+                    TextField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(color: Color(0xFF2B39C0)),
+                        // Change label color
+                        prefixIcon: Icon(Icons.lock, color: Color(0xFF2B39C0)),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0xFF2B39C0), width: 2.0),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 10.0),
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(40),
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color(0xFF2B39C0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0),
+                          // side: BorderSide(color: Colors.blue),
+                        ),
+                      ),
+                      onPressed: _login,
+                      child: const Text("Sign In"),
+                    ),
+                    // const SizedBox(height: 10),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        TextButton(
+                          onPressed: _navigateToSignupPage,
+                          child: const Text.rich(
+                            TextSpan(
+                              text: 'Don\'t have an account? ',
+                              style: TextStyle(color: Colors.black),
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: 'Sign up here',
+                                  style: TextStyle(color: Color(0xFF2B39C0)),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          minimumSize: Size.zero,
-                          padding: EdgeInsets.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            minimumSize: Size.zero,
+                            padding: EdgeInsets.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: _navigateToResetPassword,
+                          child: const Text(
+                            'Forget Password',
+                            style: TextStyle(color: Color(0xFF2B39C0)),
+                          ),
                         ),
-                        onPressed: _navigateToResetPassword,
-                        child: const Text(
-                          'Forget Password',
-                          style: TextStyle(color: Color(0xFF2B39C0)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

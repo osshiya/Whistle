@@ -20,6 +20,7 @@ class MapScreen extends StatefulWidget {
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
+
 Color generateColor(String input) {
   int hashCode = input.hashCode;
   double hue = (hashCode % 360).toDouble();
@@ -86,8 +87,8 @@ class _MapScreenState extends State<MapScreen> {
         double longitude = friendsMap["longitude"];
 
         Color friendColor = generateColor(friendUid);
-        String friendName = await friendsNames
-            .firstWhere((element) => element["uid"] == friendUid,
+        String friendName = await friendsNames.firstWhere(
+            (element) => element["uid"] == friendUid,
             orElse: () => {"name": ""})["name"];
 
         final Marker marker = Marker(
@@ -116,18 +117,16 @@ class _MapScreenState extends State<MapScreen> {
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder);
 
-    final paint = Paint()
-      ..color = color;
+    final paint = Paint()..color = color;
     canvas.drawCircle(Offset(radius, radius), radius, paint);
 
     final picture = recorder.endRecording();
-    final img = await picture.toImage(
-        (radius * 2).toInt(), (radius * 2).toInt());
+    final img =
+        await picture.toImage((radius * 2).toInt(), (radius * 2).toInt());
     final byteData = await img.toByteData(format: ImageByteFormat.png);
 
     return byteData!.buffer.asUint8List();
   }
-
 
   Future<void> _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
@@ -194,8 +193,8 @@ class _MapScreenState extends State<MapScreen> {
                         itemCount: friendsNames.length,
                         itemBuilder: (context, index) {
                           String friendName = friendsNames[index]["name"];
-                          Color friendColor = generateColor(
-                              friendsNames[index]["uid"]);
+                          Color friendColor =
+                              generateColor(friendsNames[index]["uid"]);
 
                           return Container(
                             margin: EdgeInsets.symmetric(horizontal: 8.0),
