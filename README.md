@@ -62,14 +62,16 @@ First, clone the project repository to your local machine using Git:
 1. After cloning, change into the Flutter project directory on Andriod Studio or VS Code:
 `cd GDSC-2024/flutter_app`
 
-2. Run the following command to install the necessary Flutter dependencies:
+2. Replace your Google Cloud API key in `android/app/src/main/AndroidManifest.xml`
+
+3. Run the following command to install the necessary Flutter dependencies:
 `flutter pub get`
 
-3. Run the Application
+4. Run the Application
 Make sure an Android emulator is running or a device is connected to your computer. Then, execute the following command to run the app:
 `flutter run`
 
-4. Or if you've downloaded `app-release.apk`, open and install it on your own Android mobile itself.
+5. Or if you've downloaded `app-release.apk`, open and install it on your own Android mobile itself.
 
 #### IoT Device
 1. After cloning, change into the IoT Device project directory:
