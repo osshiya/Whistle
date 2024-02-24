@@ -4,7 +4,7 @@
     Whistle
 </h1>
 
-Whistle integrates IoT and Google Technology with a push-button mechanism to address discrimination, bullying, and threats faced by vulnerable groups. This system empowers individuals to boost their personal safety, report potential threats, and alert trusted contacts without the need to navigate through a phone during urgent situations, thereby reducing crucial response time in emergencies. By ensuring accessible and efficient emergency assistance, we want to foster a safer urban environment where everyone can feel secure.
+Whistle integrates IoT and Google technologies with a push-button mechanism to address discrimination, bullying, and threats faced by vulnerable groups. This system empowers individuals to boost their personal safety, report potential threats, and alert trusted contacts without the need to navigate through a phone during urgent situations, thereby reducing crucial response time in emergencies. By ensuring accessible and efficient emergency assistance, we want to foster a safer urban environment where everyone can feel secure.
 
 ## Overview
 
@@ -56,6 +56,8 @@ First, clone the project repository to your local machine using Git:
 
 2. Navigate to Project Directory
 
+3. Or alternatively, download the `app-release.apk` and `BLE_Server.ino` from Releases.
+
 #### Flutter Mobile App
 1. After cloning, change into the Flutter project directory on Andriod Studio or VS Code:
 `cd GDSC-2024/flutter_app`
@@ -66,6 +68,8 @@ First, clone the project repository to your local machine using Git:
 3. Run the Application
 Make sure an Android emulator is running or a device is connected to your computer. Then, execute the following command to run the app:
 `flutter run`
+
+4. Or if you've downloaded `app-release.apk`, open and install it on your own Android mobile itself.
 
 #### IoT Device
 1. After cloning, change into the IoT Device project directory:
