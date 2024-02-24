@@ -18,6 +18,7 @@ import 'firebase_options.dart';
 
 class BackgroundTask {
   @pragma('vm:entry-point')
+
   static void updateCoordinatesIsolate() async {
     try {
       await Firebase.initializeApp(
@@ -31,6 +32,7 @@ class BackgroundTask {
       if (!isLocationServiceEnabled) {
         log('Location services are not enabled');
         return;
+
       }
 
       Position position = await Geolocator.getCurrentPosition(
